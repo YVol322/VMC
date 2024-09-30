@@ -18,11 +18,38 @@ bool Metropolis::step(
         class WaveFunction& waveFunction,
         std::vector<std::unique_ptr<class Particle>>& particles)
 {
-    /* Perform the actual Metropolis step: Choose a particle at random and
-     * change its position by a random amount, and check if the step is
-     * accepted by the Metropolis test (compare the wave function evaluated at
-     * this new position with the one at the old position).
-     */
+    int n_particles = particles.size();
+    int n_dims = (particles.back()) -> getNumberOfDimensions();
 
-    return false;
+    double WFold, WFnew;
+    std::vector<std::vector<double>> rand_doubles(n_particles, std::vector<double>(n_dims));
+
+    WFold = waveFunction.evaluate(particles);
+
+    for(int i = 0; i < n_particles; i++)
+    {
+        for(int j = 0; j < n_dims; j++)
+        {
+            rand_doubles[i][j] = m_rng->nextDouble();
+
+            (*(particles.at(i))).adjustPosition(stepLength*(rand_doubles[i][j] - 0.5), j);
+        }
+    }
+
+    WFnew = waveFunction.evaluate(particles);
+
+    if(m_rng -> nextDouble() > (WFnew * WFnew)/(WFold * WFold))
+    {
+        //#pragma omp parallel for collapse(2)
+        for(int i = 0; i < n_particles; i++)
+        {
+            for(int j = 0; j < n_dims; j++)
+            {
+                (*(particles.at(i))).adjustPosition(-stepLength*(rand_doubles[i][j] - 0.5), j);
+            }
+        }
+        return false;
+    }
+    else return true;
+
 }

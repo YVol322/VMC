@@ -14,3 +14,7 @@ make -j2
 
 # Move the executable to the top-directory
 mv vmc ..
+
+cd ..
+
+./vmc

@@ -58,12 +58,13 @@ void Sampler::printOutputToTerminal(System& system) {
     }
     cout << endl;
     cout << "  -- Results -- " << endl;
-    cout << " Energy : " << m_energy << endl;
+    cout << " Numberical Energy : " << m_energy << endl;
+    cout << endl;
+
+    cout << " Analytical Energy : " << 0.25 * m_numberOfDimensions * m_numberOfParticles * (pa.at(0) * pa.at(0) + 1/(pa.at(0) * pa.at(0))) << endl;
     cout << endl;
 }
 
 void Sampler::computeAverages() {
-    /* Compute the averages of the sampled quantities.
-     */
     m_energy = m_cumulativeEnergy / m_numberOfMetropolisSteps;
 }

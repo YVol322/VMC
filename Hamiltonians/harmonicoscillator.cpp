@@ -20,13 +20,24 @@ double HarmonicOscillator::computeLocalEnergy(
             std::vector<std::unique_ptr<class Particle>>& particles
         )
 {
-    /* Here, you need to compute the kinetic and potential energies.
-     * Access to the wave function methods can be done using the dot notation
-     * for references, e.g., wavefunction.computeDoubleDerivative(particles),
-     * to get the Laplacian of the wave function.
-     * */
 
-    double potentialEnergy = 0;
-    double kineticEnergy   = 0;
+    int n_particles = particles.size();
+    double r2 = 0;
+
+    //#pragma omp parallel for
+    for(int i = 0; i < n_particles; i++)
+    {
+        r2 += waveFunction.r_squared(particles, i);
+    }
+
+
+    double potentialEnergy = 0.5 * r2 * m_omega * m_omega ;
+
+    // Computing kinetic energy (without exponent).
+    double kineticEnergy   = -0.5 * waveFunction.computeDoubleDerivative(particles);
+
+    // Computing local energy (based on the analytical expression).
+    // Note! I computed kinetic & potential energy without exponent (wave fucntion),
+    // because it cancles after division. This was made to fasten program.
     return kineticEnergy + potentialEnergy;
 }
