@@ -56,4 +56,3 @@ Here follows a suggestion for how you can work to complete the missing parts of 
 - Now, the last big thing needed is to implement the energy calculation. This is done by the `Hamiltonian` sub-class `HarmonicOscillator`. Here you will have to use the Laplacian you calculated for the wave function earlier.
 - Now the code should be functioning and you should see (somewhat) reasonable results. Try to set the oscillator frequency to 1 and calculate analytically the energy of the oscillator. Recall the form of the ground state wave function of the harmonic oscillator, and set the parameter `alpha` accordingly. What is the resulting energy?
 - If this energy is NOT correct, the last bit missing is to take a look at the `computeAverages` function in the `Sampler` class. What is missing here?
-

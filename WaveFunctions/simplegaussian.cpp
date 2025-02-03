@@ -1,17 +1,12 @@
-#include <memory>
 #include <cmath>
-#include <cassert>
 
 #include "simplegaussian.h"
-#include "wavefunction.h"
-#include "../system.h"
-#include "../particle.h"
 
 SimpleGaussian::SimpleGaussian(double alpha)
 {
     assert(alpha >= 0);
     m_numberOfParameters = 1;
-    m_parameters.reserve(1);
+    m_parameters.reserve(m_numberOfParameters);
     m_parameters.push_back(alpha);
 }
 

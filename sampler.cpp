@@ -1,12 +1,6 @@
-#include <memory>
 #include <iostream>
-#include <cmath>
-#include <vector>
-#include "system.h"
+
 #include "sampler.h"
-#include "particle.h"
-#include "Hamiltonians/hamiltonian.h"
-#include "WaveFunctions/wavefunction.h"
 
 using std::cout;
 using std::endl;

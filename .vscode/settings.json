@@ -1,6 +1,6 @@
 {
     "files.associations": {
-        "vector": "cpp",
+        "memory": "cpp",
         "__bit_reference": "cpp",
         "__bits": "cpp",
         "__config": "cpp",
@@ -51,7 +51,6 @@
         "iterator": "cpp",
         "limits": "cpp",
         "locale": "cpp",
-        "memory": "cpp",
         "mutex": "cpp",
         "new": "cpp",
         "numbers": "cpp",
@@ -75,6 +74,7 @@
         "unordered_map": "cpp",
         "utility": "cpp",
         "variant": "cpp",
+        "vector": "cpp",
         "*.tcc": "cpp",
         "memory_resource": "cpp",
         "format": "cpp",

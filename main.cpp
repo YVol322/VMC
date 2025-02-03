@@ -16,20 +16,23 @@ using namespace std;
 
 int main() {
     // Seed for the random number generator
-    int seed = 2023;
+    int seed = 2025;
 
-    unsigned int numberOfDimensions = 3;
-    unsigned int numberOfParticles = 3;
-    unsigned int numberOfMetropolisSteps = (unsigned int) 1e6;
+    unsigned int numberOfDimensions = 2;
+    unsigned int numberOfParticles = 2;
+    unsigned int numberOfMetropolisSteps = (unsigned int) 1e5;
     unsigned int numberOfEquilibrationSteps = (unsigned int) 1e5;
     double omega = 1.0; // Oscillator frequency.
     double alpha = 0.5; // Variational parameter.
-    double stepLength = 0.5; // Metropolis step length.
+    double stepLength = 1; // Metropolis step length.
 
     // The random engine can also be built without a seed
     auto rng = std::make_unique<Random>(seed);
     // Initialize particles
-    auto particles = setupRandomUniformInitialState(stepLength, numberOfDimensions, numberOfParticles, *rng);
+    auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
+
+
+
     // Construct a unique pointer to a new System
     auto system = std::make_unique<System>(
             // Construct unique_ptr to Hamiltonian

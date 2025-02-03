@@ -1,13 +1,6 @@
-#include<memory>
-#include <cassert>
 #include <iostream>
 
 #include "harmonicoscillator.h"
-#include "../particle.h"
-#include "../WaveFunctions/wavefunction.h"
-
-using std::cout;
-using std::endl;
 
 HarmonicOscillator::HarmonicOscillator(double omega)
 {
@@ -38,6 +31,6 @@ double HarmonicOscillator::computeLocalEnergy(
 
     // Computing local energy (based on the analytical expression).
     // Note! I computed kinetic & potential energy without exponent (wave fucntion),
-    // because it cancles after division. This was made to fasten program.
+    // because it cancles after division. This was made to speed-up the program.
     return kineticEnergy + potentialEnergy;
 }

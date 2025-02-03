@@ -1,14 +1,6 @@
 #include <iostream>
-#include <memory>
-#include <cassert>
 
 #include "system.h"
-#include "sampler.h"
-#include "particle.h"
-#include "WaveFunctions/wavefunction.h"
-#include "Hamiltonians/hamiltonian.h"
-#include "InitialStates/initialstate.h"
-#include "Solvers/montecarlo.h"
 
 
 System::System(
@@ -32,7 +24,8 @@ unsigned int System::runEquilibrationSteps(
 {
     unsigned int acceptedSteps = 0;
 
-    for (unsigned int i = 0; i < numberOfEquilibrationSteps; i++) {
+    for (unsigned int i = 0; i < numberOfEquilibrationSteps; i++)
+    {
         acceptedSteps += m_solver->step(stepLength, *m_waveFunction, m_particles);
     }
 

@@ -2,6 +2,15 @@
 
 #include <memory>
 #include <vector>
+#include <cassert>
+
+#include "system.h"
+#include "sampler.h"
+#include "particle.h"
+#include "WaveFunctions/wavefunction.h"
+#include "Hamiltonians/hamiltonian.h"
+#include "InitialStates/initialstate.h"
+#include "Solvers/montecarlo.h"
 
 
 class System {
@@ -32,4 +41,3 @@ private:
     std::unique_ptr<class MonteCarlo> m_solver;
     std::vector<std::unique_ptr<class Particle>> m_particles;
 };
-

@@ -1,6 +1,11 @@
 #pragma once
+
+#include <cassert>
 #include <memory>
 #include <vector>
+
+#include "../system.h"
+#include "../particle.h"
 
 
 class WaveFunction {
@@ -18,4 +23,3 @@ protected:
     int m_numberOfParameters = 0;
     std::vector<double> m_parameters = std::vector<double>();
 };
-
