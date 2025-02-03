@@ -24,6 +24,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 # -O0, -O1, -O2.
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+# ==== CHANGE 1: Find OpenMP package ====
+find_package(OpenMP REQUIRED)
+
 # Add directories containing header-files
 include_directories(
     .
@@ -47,3 +50,8 @@ file(
 
 # Create executable called "vmc"
 add_executable(vmc ${SOURCES})
+
+# ==== CHANGE 2: Link OpenMP to the executable ====
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(vmc PUBLIC OpenMP::OpenMP_CXX)
+endif()

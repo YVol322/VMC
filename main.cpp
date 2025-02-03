@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <chrono>
 
 #include "system.h"
 #include "WaveFunctions/simplegaussian.h"
@@ -12,15 +13,16 @@
 #include "sampler.h"
 
 using namespace std;
+using namespace std::chrono;
 
 
 int main() {
     // Seed for the random number generator
     int seed = 2025;
 
-    unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 2;
-    unsigned int numberOfMetropolisSteps = (unsigned int) 1e5;
+    unsigned int numberOfDimensions = 3;
+    unsigned int numberOfParticles = 15;
+    unsigned int numberOfMetropolisSteps = (unsigned int) 1e6;
     unsigned int numberOfEquilibrationSteps = (unsigned int) 1e5;
     double omega = 1.0; // Oscillator frequency.
     double alpha = 0.5; // Variational parameter.
@@ -44,6 +46,10 @@ int main() {
             // Move the vector of particles to system
             std::move(particles));
 
+
+    auto start = high_resolution_clock::now();
+
+
     // Run steps to equilibrate particles
     auto acceptedEquilibrationSteps = system->runEquilibrationSteps(
             stepLength,
@@ -54,8 +60,13 @@ int main() {
             stepLength,
             numberOfMetropolisSteps);
 
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<seconds>(stop - start);
+
     // Output information from the simulation
     sampler->printOutputToTerminal(*system);
+    
+    cout << "Parallel execution time: " << duration.count() << " seconds" << endl;
 
     return 0;
 }
