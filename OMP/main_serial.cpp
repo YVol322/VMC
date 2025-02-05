@@ -21,7 +21,7 @@ int main() {
     int seed = 2025;
 
     unsigned int numberOfDimensions = 3;
-    unsigned int numberOfParticles = 15;
+    unsigned int numberOfParticles = 2;
     unsigned int numberOfMetropolisSteps = (unsigned int) 1e6;
     unsigned int numberOfEquilibrationSteps = (unsigned int) 1e5;
     double omega = 1.0; // Oscillator frequency.
