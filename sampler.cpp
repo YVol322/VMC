@@ -57,8 +57,18 @@ void Sampler::printOutputToTerminal(System& system) {
 
     cout << " Analytical Energy : " << 0.25 * m_numberOfDimensions * m_numberOfParticles * (pa.at(0) * pa.at(0) + 1/(pa.at(0) * pa.at(0))) << endl;
     cout << endl;
+
+    cout << " Algo runtime: " << m_time << " seconds" << endl;
 }
 
 void Sampler::computeAverages() {
     m_energy = m_cumulativeEnergy / m_numberOfMetropolisSteps;
+}
+
+void Sampler::setEnergy(double en) {
+    m_energy = en;
+}
+
+void Sampler::setTime(double t) {
+    m_time = t;
 }

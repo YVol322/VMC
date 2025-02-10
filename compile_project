@@ -18,5 +18,4 @@ mv vmc ..
 cd ..
 
 #./vmc
-
 mpirun --oversubscribe -np 8 ./vmc

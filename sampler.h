@@ -21,6 +21,8 @@ public:
     void sample(bool acceptedStep, class System* system);
     void printOutputToTerminal(class System& system);
     void computeAverages();
+    void setEnergy(double en);
+    void setTime(double t);
     double getEnergy() { return m_energy; }
 
 private:
@@ -32,4 +34,5 @@ private:
     double m_energy = 0;
     double m_cumulativeEnergy = 0;
     double m_stepLength = 0;
+    double m_time = 0;
 };

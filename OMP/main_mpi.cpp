@@ -92,17 +92,17 @@ int main(int argc, char** argv)
             sum_energy += all_energies[i];
         }
         double mean_energy = sum_energy / size;
-        std::cout << "Mean energy calculated by the root process: " << mean_energy << std::endl;
+
+        sampler -> setEnergy(mean_energy);
+        sampler -> setTime(duration.count());
         sampler -> printOutputToTerminal(*system);
 
         delete[] all_energies;
+        cout << " MPI" << endl;
     }
 
     MPI_Finalize();
 
-    if (my_rank == 0) {
-    cout << "Parallel execution time: " << duration.count() << " seconds" << endl;
-    }
 
     return 0;
 }
