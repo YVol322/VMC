@@ -21,6 +21,8 @@ bool Metropolis::step(
 
     WFold = waveFunction.evaluate(particles);
 
+    //exit(0);
+
     for(int i = 0; i < n_particles; i++)
     {
         for(int j = 0; j < n_dims; j++)

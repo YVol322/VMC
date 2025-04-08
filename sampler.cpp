@@ -55,7 +55,8 @@ void Sampler::printOutputToTerminal(System& system) {
     cout << " Numberical Energy : " << m_energy << endl;
     cout << endl;
 
-    cout << " Analytical Energy : " << 0.25 * m_numberOfDimensions * m_numberOfParticles * (pa.at(0) * pa.at(0) + 1/(pa.at(0) * pa.at(0))) << endl;
+    cout << " Analytical Energy for bosons : " << 0.5 * m_numberOfDimensions * m_numberOfParticles * (pa.at(0) + 1/(4* pa.at(0))) << endl;
+    cout << " Analytical Energy for fermions : " << 10 << endl;
     cout << endl;
 
     cout << " Algo runtime: " << m_time << " seconds" << endl;

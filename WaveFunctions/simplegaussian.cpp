@@ -38,7 +38,7 @@ double SimpleGaussian::evaluate(std::vector<std::unique_ptr<class Particle>>& pa
         argument += r_squared(particles, i);
     }
 
-    argument *= -0.5 * alpha * alpha;
+    argument *= -alpha;
     wavefunction = exp(argument);
 
     return wavefunction;
@@ -57,7 +57,7 @@ double SimpleGaussian::computeDoubleDerivative(std::vector<std::unique_ptr<class
     }
 
     int n_dims = (particles.back()) -> getNumberOfDimensions();
-    laplacian = - n_dims * n_particles * alpha * alpha + alpha * alpha * alpha * alpha * summ_of_squares;
+    laplacian = -2 * n_dims * n_particles * alpha + 4 * alpha * alpha * summ_of_squares;
 
     return laplacian;
 }
