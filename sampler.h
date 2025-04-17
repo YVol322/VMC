@@ -24,6 +24,8 @@ public:
     void setEnergy(double en);
     void setTime(double t);
     double getEnergy() { return m_energy; }
+    std::vector<double> getEnergyrij() { return m_Elrij; }
+    std::vector<double> getrij() { return m_rij; }
 
 private:
     unsigned int m_stepNumber = 0;
@@ -35,4 +37,8 @@ private:
     double m_cumulativeEnergy = 0;
     double m_stepLength = 0;
     double m_time = 0;
+    std::vector<double> m_rij;
+    std::vector<double> m_Elrij;
+    std::vector<double> m_cumulativeEnergyrij;
+    std::vector<double> m_cumulativerij;
 };

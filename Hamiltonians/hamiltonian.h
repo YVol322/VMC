@@ -16,4 +16,9 @@ class Hamiltonian
             class WaveFunction& waveFunction,
             std::vector<std::unique_ptr<class Particle>>& particles
         ) = 0;
+        virtual double computerij(
+            class WaveFunction& waveFunction,
+            std::vector<std::unique_ptr<class Particle>>& particles,
+            int i, int j
+        ) = 0;
 };

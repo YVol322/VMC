@@ -2,10 +2,9 @@
 #include <vector>
 #include <memory>
 #include <chrono>
+#include <cmath>
 
 #include "system.h"
-#include "WaveFunctions/simplegaussian.h"
-#include "WaveFunctions/slaterdeterminant.h"
 #include "WaveFunctions/fermionsjastrow.h"
 #include "Hamiltonians/harmonicoscillator.h"
 #include "InitialStates/initialstate.h"
@@ -19,22 +18,25 @@
 using namespace std;
 using namespace std::chrono;
 
-
 int main(int argc, char** argv)
 {
-    // Seed for the random number generator
     int seed = 2025;
-
     unsigned int numberOfDimensions = 2;
     unsigned int numberOfParticles = 6;
-    unsigned int numberOfMetropolisSteps = (unsigned int) 1e5;
-    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e4;
-    double omega = 1.0; // Oscillator frequency.
-    double alpha = 0.5; // Variational parameter.
-    double stepLength = 1; // Metropolis step length.
+    unsigned int numberOfMetropolisSteps = (unsigned int) 1e4;
+    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e3;
+    double omega = 1.0;
+    double alpha = 0.5;
+    double stepLength = 1;
 
     int size, my_rank;
     double energy;
+
+    int max_iterations = 1000;
+    double learning_rate = 5e-4;
+    double momentum = 0.9;
+    double convergence_threshold = 0.9;
+    double gradient_norm = 1.0;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -42,83 +44,98 @@ int main(int argc, char** argv)
 
     seed *= (my_rank + 1);
 
-
-    // The random engine can also be built without a seed
-    auto rng = std::make_unique<Random>(seed);
-    // Initialize particles
-    auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
-
     std::vector<double> beta(15);
+    std::vector<double> energyrij;
+    std::vector<double> rij;
+    auto rng2 = std::make_unique<Random>(seed);
 
-    if (my_rank == 0)
-    {
-        int N = 6;
-        for (int i = 0; i < N - 1; ++i)
-        {
-            for (int j = i + 1; j < N; ++j)
-            {
-                int idx = i * (2 * N - i - 1) / 2 + (j - i - 1);
-                beta.at(idx) = 0.1;
-            }
+    // Use good starting values
+    if (my_rank == 0) {
+        for (int i = 0; i < 15; ++i) {
+            beta[i] = rng2 -> nextDouble() * 0.3;
         }
     }
 
+    int iteration = 0;
+    while (iteration < max_iterations && gradient_norm > convergence_threshold) {
+        auto rng = std::make_unique<Random>(seed + iteration);
+        auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
 
-    // Construct a unique pointer to a new System
-    auto system = std::make_unique<System>(
-            // Construct unique_ptr to Hamiltonian
+        auto system = std::make_unique<System>(
             std::make_unique<HarmonicOscillator>(omega),
-            // Construct unique_ptr to wave function
             std::make_unique<FermionsJastrow>(alpha, beta),
-            // Construct unique_ptr to solver, and move rng
             std::make_unique<Metropolis>(std::move(rng)),
-            // Move the vector of particles to system
             std::move(particles));
 
+        auto start = high_resolution_clock::now();
 
-    auto start = high_resolution_clock::now();
+        system->runEquilibrationSteps(stepLength, numberOfEquilibrationSteps / size);
+        auto sampler = system->runMetropolisSteps(stepLength, numberOfMetropolisSteps / size);
 
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<seconds>(stop - start);
 
-    // Run steps to equilibrate particles
-    auto acceptedEquilibrationSteps = system->runEquilibrationSteps(
-            stepLength,
-            numberOfEquilibrationSteps/size);
+        energy = sampler->getEnergy();
 
-    // Run the Metropolis algorithm
-    auto sampler = system->runMetropolisSteps(
-            stepLength,
-            numberOfMetropolisSteps/size);
+        double* all_energies = nullptr;
+        if (my_rank == 0) {
+            all_energies = new double[size];
+        }
 
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<seconds>(stop - start);
+        MPI_Gather(&energy, 1, MPI_DOUBLE, all_energies, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    energy = sampler -> getEnergy();
+        double mean_energy = energy;
+        if (my_rank == 0) {
+            double sum_energy = 0.0;
+            for (int i = 0; i < size; ++i) {
+                sum_energy += all_energies[i];
+            }
+            mean_energy = sum_energy / size;
+            delete[] all_energies;
+        }
 
-    double *all_energies = nullptr;
-    if (my_rank == 0) {
-        // Root process allocates space to store all energies
-        all_energies = new double[size];
+        MPI_Bcast(&mean_energy, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+        rij = sampler->getrij();
+        energyrij = sampler->getEnergyrij();
+
+        std::vector<double> gradient(15);
+        std::vector<double> velocity(15);
+        gradient_norm = 0.0;
+        for (int k = 0; k < 15; ++k) {
+            gradient[k] = 2.0 * (energyrij[k] - mean_energy * rij[k]);
+            gradient_norm += gradient[k] * gradient[k];
+        }
+        gradient_norm = sqrt(gradient_norm);
+
+        if (my_rank == 0) {
+            for (int k = 0; k < 15; ++k) {
+                velocity[k] = momentum * velocity[k] - learning_rate * gradient[k];
+                beta[k] += velocity[k];
+            }
+
+            sampler->setEnergy(mean_energy);
+            sampler->setTime(duration.count());
+
+            cout << "SGD Iteration: " << iteration << endl;
+            cout << "Energy: " << mean_energy << endl;
+            cout << "Gradient norm: " << gradient_norm << endl;
+            for (int k = 0; k < 15; ++k) {
+                cout << "  beta[" << k << "] = " << beta[k] << " (grad = " << gradient[k] << ")" << endl;
+            }
+        }
+
+        iteration++;
     }
 
-    MPI_Gather(&energy, 1, MPI_DOUBLE, all_energies, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-     if (my_rank == 0) {
-        double sum_energy = 0.0;
-        for (int i = 0; i < size; ++i) {
-            sum_energy += all_energies[i];
+    if (my_rank == 0) {
+        if (gradient_norm <= convergence_threshold) {
+            cout << "Converged after " << iteration << " iterations." << endl;
+        } else {
+            cout << "Max iterations reached without convergence." << endl;
         }
-        double mean_energy = sum_energy / size;
-
-        sampler -> setEnergy(mean_energy);
-        sampler -> setTime(duration.count());
-        sampler -> printOutputToTerminal(*system);
-
-        delete[] all_energies;
-        cout << " MPI" << endl;
     }
 
     MPI_Finalize();
-
-
     return 0;
 }

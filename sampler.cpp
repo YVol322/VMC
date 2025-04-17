@@ -20,6 +20,10 @@ Sampler::Sampler(
     m_cumulativeEnergy = 0;
     m_stepLength = stepLength;
     m_numberOfAcceptedSteps = 0;
+    m_rij = std::vector<double>(15, 0.0);
+    m_Elrij = std::vector<double>(15, 0.0);
+    m_cumulativeEnergyrij = std::vector<double>(15, 0.0);
+    m_cumulativerij = std::vector<double>(15, 0.0);
 }
 
 
@@ -31,6 +35,18 @@ void Sampler::sample(bool acceptedStep, System* system) {
     m_cumulativeEnergy  += localEnergy;
     m_stepNumber++;
     m_numberOfAcceptedSteps += acceptedStep;
+
+    int N = 6;
+    
+    int idx = 0;
+    for (int i = 0; i < N - 1; ++i) {
+        for (int j = i + 1; j < N; ++j) {
+            double rij = system -> computerij(i, j);  // More efficient
+            m_cumulativerij[idx]     += rij;
+            m_cumulativeEnergyrij[idx] += rij * localEnergy;
+            ++idx;
+        }
+    }
 }
 
 void Sampler::printOutputToTerminal(System& system) {
@@ -64,6 +80,12 @@ void Sampler::printOutputToTerminal(System& system) {
 
 void Sampler::computeAverages() {
     m_energy = m_cumulativeEnergy / m_numberOfMetropolisSteps;
+
+    for (int i = 0; i < 15; i++)
+    {
+        m_rij[i] = m_cumulativerij[i] / m_numberOfMetropolisSteps;
+        m_Elrij[i] = m_cumulativeEnergyrij[i] / m_numberOfMetropolisSteps;
+    }
 }
 
 void Sampler::setEnergy(double en) {

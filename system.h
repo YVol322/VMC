@@ -30,6 +30,7 @@ public:
             unsigned int numberOfMetropolisSteps);
 
     double computeLocalEnergy();
+    double computerij(int i, int j);
     const std::vector<double>& getWaveFunctionParameters();
 
 private:
