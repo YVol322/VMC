@@ -20,8 +20,6 @@ std::vector<std::unique_ptr<Particle>> setupRandomUniformInitialState(
         for (unsigned int j=0; j < numberOfDimensions; j++)
         {    
             position.push_back(rng.nextDouble());
-
-            //std::cout << "particle number " << i + 1 << ", dimnsion " << j + 1  << "coordinate " << position.at(j)<< std::endl;
         }
 
         particles.push_back(std::make_unique<Particle>(position));

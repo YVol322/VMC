@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.25)
 project(project_1_fys4411)
 
 # Set CXX standard to C++14
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Check if the user has specified a build type via the command line, e.g.,
 #
@@ -34,6 +34,10 @@ find_package(MPI REQUIRED)
 find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
+# ==== CHANGE 4: Set CMake path for autodiff ====
+set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/autodiff" ${CMAKE_PREFIX_PATH})  # Add this line to find autodiff
+find_package(autodiff REQUIRED)  # This will find autodiff if installed globally
+
 # Add directories containing header-files
 include_directories(
     .
@@ -42,6 +46,7 @@ include_directories(
     Math
     WaveFunctions
     Solvers
+    ${AUTODIFF_INCLUDE_DIRS}  # Include autodiff headers
 )
 
 # Add sources from all directories
@@ -57,12 +62,15 @@ file(
 # Create executable called "vmc"
 add_executable(vmc ${SOURCES})
 
-# ==== CHANGE 4: Link OpenMP to the executable ====
+# ==== CHANGE 5: Link OpenMP to the executable ====
 if(OpenMP_CXX_FOUND)
     target_link_libraries(vmc PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
-# ==== CHANGE 5: Link MPI to the executable ====
+# ==== CHANGE 6: Link MPI to the executable ====
 if(MPI_CXX_FOUND)
     target_link_libraries(vmc PUBLIC MPI::MPI_CXX)
 endif()
+
+# ==== CHANGE 7: Link autodiff to the executable ====
+target_link_libraries(vmc PRIVATE ${AUTODIFF_LIBRARIES})  # Link autodiff

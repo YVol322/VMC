@@ -1,4 +1,5 @@
 #include "metropolis.h"
+#include <iostream>
 
 
 Metropolis::Metropolis(std::unique_ptr<class Random> rng)
@@ -21,8 +22,6 @@ bool Metropolis::step(
 
     WFold = waveFunction.evaluate(particles);
 
-    //exit(0);
-
     for(int i = 0; i < n_particles; i++)
     {
         for(int j = 0; j < n_dims; j++)
@@ -34,6 +33,7 @@ bool Metropolis::step(
     }
 
     WFnew = waveFunction.evaluate(particles);
+
 
     if(m_rng -> nextDouble() > (WFnew * WFnew)/(WFold * WFold))
     {

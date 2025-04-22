@@ -67,7 +67,7 @@ double System::computeLocalEnergy()
 double System::computerij(int i, int j)
 {
     // Helper function
-    return m_hamiltonian -> computerij(*m_waveFunction, m_particles, i, j);
+    return m_waveFunction -> r_ij(m_particles, i, j);
 }
 
 const std::vector<double>& System::getWaveFunctionParameters()
