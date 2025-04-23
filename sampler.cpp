@@ -21,12 +21,12 @@ Sampler::Sampler(
     m_stepLength = stepLength;
     m_numberOfAcceptedSteps = 0;
     
-    int nPairs = m_numberOfParticles * (m_numberOfParticles - 1) / 2;
+    m_nPairs = m_numberOfParticles * (m_numberOfParticles - 1) / 2;
 
-    m_rij = std::vector<double>(nPairs, 0.0);
-    m_Elrij = std::vector<double>(nPairs, 0.0);
-    m_cumulativeEnergyrij = std::vector<double>(nPairs, 0.0);
-    m_cumulativerij = std::vector<double>(nPairs, 0.0);
+    m_rij = std::vector<double>(m_nPairs, 0.0);
+    m_Elrij = std::vector<double>(m_nPairs, 0.0);
+    m_cumulativeEnergyrij = std::vector<double>(m_nPairs, 0.0);
+    m_cumulativerij = std::vector<double>(m_nPairs, 0.0);
 }
 
 
@@ -39,9 +39,17 @@ void Sampler::sample(bool acceptedStep, System* system) {
     m_stepNumber++;
     m_numberOfAcceptedSteps += acceptedStep;
 
-    double rij = system -> computerij(0, 1);
-    m_cumulativerij[0]     += rij;
-    m_cumulativeEnergyrij[0] += rij * localEnergy;
+    int N = 6;
+    int pairIndex = 0;
+    for (int i = 0; i < N - 1; i++) {
+        for (int j = i + 1; j < N; j++) {
+            double rij = system->computerij(i, j);
+            m_cumulativerij[pairIndex] += rij;
+            m_cumulativeEnergyrij[pairIndex] += rij * localEnergy;
+            pairIndex++;
+        }
+    }
+
 }
 
 void Sampler::printOutputToTerminal(System& system) {
@@ -76,7 +84,7 @@ void Sampler::printOutputToTerminal(System& system) {
 void Sampler::computeAverages() {
     m_energy = m_cumulativeEnergy / m_numberOfMetropolisSteps;
 
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 15; i++)
     {
         m_rij[i] = m_cumulativerij[i] / m_numberOfMetropolisSteps;
         m_Elrij[i] = m_cumulativeEnergyrij[i] / m_numberOfMetropolisSteps;

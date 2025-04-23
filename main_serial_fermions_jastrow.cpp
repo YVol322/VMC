@@ -5,6 +5,7 @@
 
 #include "system.h"
 #include "WaveFunctions/fermionsjastrow2autodiff.h"
+#include "WaveFunctions/fermionsjastrow6autodiff.h"
 #include "WaveFunctions/fermionsjastrow2.h"
 #include "Hamiltonians/harmonicoscillator.h"
 #include "InitialStates/initialstate.h"
@@ -24,29 +25,33 @@ int main() {
     int seed = 2025;
 
     unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 2;
-    unsigned int numberOfMetropolisSteps = (unsigned int) 1e4;
-    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e3;
+    unsigned int numberOfParticles = 6;
+    unsigned int numberOfMetropolisSteps = (unsigned int) 1e3;
+    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e2;
 
     double omega = 1.0;
     double alpha = 0.5;
-    double beta = 0;
+
+	int nPairs = numberOfParticles * (numberOfParticles - 1) / 2;
+    std::vector<double> beta(nPairs, 0);
+
 
     double stepLength = 1;
 
 	double learning_rate = 1e-1;
-	double stop_at = 1e-2;
+	double stop_at = 6e-2;
 	double max_iters = 1000;
 	double iter = 0;
-	double grad_beta = 1;
+    std::vector<double> grad_beta(nPairs, 1);
+	double l2_norm = 1.0;
 	
-	while(iter < max_iters && abs(grad_beta) > stop_at)
+	while(iter < max_iters && l2_norm > stop_at)
 	{
 		auto rng = std::make_unique<Random>(seed);
 		auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
 		auto system = std::make_unique<System>(
         std::make_unique<HarmonicOscillator>(omega),
-        std::make_unique<FermionsJastrow2>(alpha, beta),
+        std::make_unique<FermionsJastrow6Autodiff>(alpha, beta),
         std::make_unique<Metropolis>(std::move(rng)),
         std::move(particles));
 
@@ -65,19 +70,32 @@ int main() {
 
 		sampler -> setTime(duration);
     	//sampler -> printOutputToTerminal(*system);
+		double mean_rij;
+		double mean_El;
+		double mean_El_times_rij;
 
-		double mean_rij = (sampler -> getrij()).at(0);
-		double mean_El = sampler -> getEnergy();
-		double mean_El_times_rij = (sampler -> getEnergyrij()).at(0);
+		for (int i = 0; i < 15; i++)
+		{
+			mean_rij = (sampler -> getrij()).at(i);
+			mean_El = sampler -> getEnergy();
+			mean_El_times_rij = (sampler -> getEnergyrij()).at(i);
 
-		grad_beta = 2 * (mean_El_times_rij - mean_El * mean_rij);
+			grad_beta.at(i) = 2 * (mean_El_times_rij - mean_El * mean_rij);
 
-		beta -= learning_rate * grad_beta;
+			beta.at(i) -= learning_rate * grad_beta.at(i);
+		}
+
+		l2_norm = 0.0;
+		for (double g : grad_beta)
+		{
+		    l2_norm += g * g;
+		}
+		l2_norm = sqrt(l2_norm);
 
 		std::cout << "Iteration " << iter
-          << ", beta = " << beta
+          << ", beta = " << beta[0]
           << ", energy = " << mean_El
-          << ", grad = " << grad_beta << std::endl;
+          << ", grad = " << l2_norm << std::endl;
 
 
 		iter++;
