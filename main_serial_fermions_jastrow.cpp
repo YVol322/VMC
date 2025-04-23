@@ -7,6 +7,7 @@
 #include "WaveFunctions/fermionsjastrow2autodiff.h"
 #include "WaveFunctions/fermionsjastrow6autodiff.h"
 #include "WaveFunctions/fermionsjastrow2.h"
+#include "WaveFunctions/fermionsjastrow.h"
 #include "Hamiltonians/harmonicoscillator.h"
 #include "InitialStates/initialstate.h"
 #include "Solvers/metropolis.h"
@@ -51,7 +52,7 @@ int main() {
 		auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
 		auto system = std::make_unique<System>(
         std::make_unique<HarmonicOscillator>(omega),
-        std::make_unique<FermionsJastrow6Autodiff>(alpha, beta),
+        std::make_unique<FermionsJastrow>(alpha, beta),
         std::make_unique<Metropolis>(std::move(rng)),
         std::move(particles));
 
