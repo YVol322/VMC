@@ -327,7 +327,7 @@ double FermionsJastrow::LapliPsi4(std::vector<std::unique_ptr<class Particle>>& 
     double r2 = x * x + y * y;
     double psi1 = Psi1(particles, part_inx);
 
-    double laplacian_psi4 = x * y * psi1 * (4 * alpha * alpha * r2 - 8 * alpha);
+    double laplacian_psi4 = x * y * psi1 * (4 * alpha * alpha * r2 - 12 * alpha);
 
     return laplacian_psi4;
 }
@@ -340,12 +340,18 @@ double FermionsJastrow::LapliPsi5(std::vector<std::unique_ptr<class Particle>>& 
 
     double x = particle_i.getPosition().at(0);
     double y = particle_i.getPosition().at(1);
-    double r2 = x * x + y * y;
     double psi1 = Psi1(particles, part_inx);
 
-   double laplacian_psi5 = psi1 *
-   (2 - 8 * alpha * x * x + (4 * alpha * alpha * r2 - 4 * alpha) * (x * x - 1));
+    double x2 = x * x;
+    double y2 = y * y;
+    double common = x2 - 1;
 
+    double laplacian_psi5 = 2 * psi1 * (
+        -4 * alpha * x2
+        + alpha * common * (2 * alpha * x2 - 1)
+        + alpha * common * (2 * alpha * y2 - 1)
+        + 1
+    );
 
     return laplacian_psi5;
 }
@@ -358,11 +364,18 @@ double FermionsJastrow::LapliPsi6(std::vector<std::unique_ptr<class Particle>>& 
 
     double x = particle_i.getPosition().at(0);
     double y = particle_i.getPosition().at(1);
-    double r2 = x * x + y * y;
     double psi1 = Psi1(particles, part_inx);
 
-    double laplacian_psi6 = psi1 *
-    (2 - 8 * alpha * y * y + (4 * alpha * alpha * r2 - 4 * alpha) * (y * y - 1));
+    double x2 = x * x;
+    double y2 = y * y;
+    double common = y2 - 1;
+
+    double laplacian_psi6 = 2 * psi1 * (
+        -4 * alpha * y2
+        + alpha * common * (2 * alpha * x2 - 1)
+        + alpha * common * (2 * alpha * y2 - 1)
+        + 1
+    );
 
     return laplacian_psi6;
 }
