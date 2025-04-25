@@ -5,7 +5,6 @@
 
 #include "system.h"
 #include "WaveFunctions/fermionsjastrownumerical.h"
-#include "WaveFunctions/fermionsjastrow2.h"
 #include "WaveFunctions/fermionsjastrow.h"
 #include "Hamiltonians/harmonicoscillator.h"
 #include "InitialStates/initialstate.h"
@@ -25,7 +24,7 @@ int main() {
     int seed = 2025;
 
     unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 2;
+    unsigned int numberOfParticles = 12;
     unsigned int numberOfMetropolisSteps = (unsigned int) 1e3;
     unsigned int numberOfEquilibrationSteps = (unsigned int) 1e2;
 
@@ -33,7 +32,8 @@ int main() {
     double alpha = 0.5;
 
 	int nPairs = numberOfParticles * (numberOfParticles - 1) / 2;
-    std::vector<double> beta(nPairs, 0.145819);
+    std::vector<double> beta(nPairs, 0);
+    //std::vector<double> beta(nPairs, 0.145819);
 
 	//beta[0] = 0.142175;
 	//beta[1] = 0.145953;
@@ -67,7 +67,7 @@ int main() {
 		auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
 		auto system = std::make_unique<System>(
         std::make_unique<HarmonicOscillator>(omega),
-        std::make_unique<FermionsJastrow2>(alpha, beta),
+        std::make_unique<FermionsJastrow>(alpha, beta),
         std::make_unique<Metropolis>(std::move(rng)),
         std::move(particles));
 

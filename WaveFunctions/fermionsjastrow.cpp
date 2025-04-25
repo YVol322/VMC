@@ -120,6 +120,36 @@ double FermionsJastrow::Psi3(std::vector<std::unique_ptr<class Particle>>& parti
 }
 
 
+double FermionsJastrow::Psi4(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
+{
+    Particle particle_i = *(particles.at(part_inx));
+    double x = particle_i.getPosition().at(0);
+    double y = particle_i.getPosition().at(1);
+    double psi4 = x * y * Psi1(particles, part_inx);
+
+    return psi4;
+}
+
+
+double FermionsJastrow::Psi5(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
+{
+    Particle particle_i = *(particles.at(part_inx));
+    double x = particle_i.getPosition().at(0);
+    double psi5 = (x * x - 1) * Psi1(particles, part_inx);
+
+    return psi5;
+}
+
+
+double FermionsJastrow::Psi6(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
+{
+    Particle particle_i = *(particles.at(part_inx));
+    double y = particle_i.getPosition().at(1);
+    double psi6 = (y * y - 1) * Psi1(particles, part_inx);
+
+    return psi6;
+}
+
 std::vector<double> FermionsJastrow::GradiPsi1(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
 {
     double alpha = m_parameters.back();
@@ -181,6 +211,69 @@ std::vector<double> FermionsJastrow::GradiPsi3(std::vector<std::unique_ptr<class
 }
 
 
+std::vector<double> FermionsJastrow::GradiPsi4(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
+{
+    double alpha = m_parameters.back();
+    Particle particle_i = *(particles.at(part_inx));
+
+    double x = particle_i.getPosition().at(0);
+    double y = particle_i.getPosition().at(1);
+    double psi1 = Psi1(particles, part_inx);
+
+    double dpsi4dx = y * psi1 * (1 - 2 * alpha * x * x);
+    double dpsi4dy = x * psi1 * (1 - 2 * alpha * y * y);
+
+    std::vector<double> grad_psi4(2);
+
+    grad_psi4.at(0) = dpsi4dx;
+    grad_psi4.at(1) = dpsi4dy;
+
+    return grad_psi4;
+}
+
+
+std::vector<double> FermionsJastrow::GradiPsi5(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
+{
+    double alpha = m_parameters.back();
+    Particle particle_i = *(particles.at(part_inx));
+
+    double x = particle_i.getPosition().at(0);
+    double y = particle_i.getPosition().at(1);
+    double psi1 = Psi1(particles, part_inx);
+
+    double dpsi5dx = 2 * x * psi1 * (1 - alpha * x * x + alpha);
+    double dpsi5dy = -2 * alpha * y * (x * x - 1) * psi1;
+
+    std::vector<double> grad_psi5(2);
+
+    grad_psi5.at(0) = dpsi5dx;
+    grad_psi5.at(1) = dpsi5dy;
+
+    return grad_psi5;
+}
+
+
+std::vector<double> FermionsJastrow::GradiPsi6(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
+{
+    double alpha = m_parameters.back();
+    Particle particle_i = *(particles.at(part_inx));
+
+    double x = particle_i.getPosition().at(0);
+    double y = particle_i.getPosition().at(1);
+    double psi1 = Psi1(particles, part_inx);
+
+    double dpsi6dx = -2 * alpha * x * (y * y - 1) * psi1;
+    double dpsi6dy = 2 * y * psi1 * (1 - alpha * y * y + alpha);
+
+    std::vector<double> grad_psi6(2);
+
+    grad_psi6.at(0) = dpsi6dx;
+    grad_psi6.at(1) = dpsi6dy;
+
+    return grad_psi6;
+}
+
+
 double FermionsJastrow::LapliPsi1(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
 {
     double alpha = m_parameters.back();
@@ -224,51 +317,92 @@ double FermionsJastrow::LapliPsi3(std::vector<std::unique_ptr<class Particle>>& 
 }
 
 
+double FermionsJastrow::LapliPsi4(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
+{
+    double alpha = m_parameters.back();
+    Particle particle_i = *(particles.at(part_inx));
+
+    double x = particle_i.getPosition().at(0);
+    double y = particle_i.getPosition().at(1);
+    double r2 = x * x + y * y;
+    double psi1 = Psi1(particles, part_inx);
+
+    double laplacian_psi4 = x * y * psi1 * (4 * alpha * alpha * r2 - 8 * alpha);
+
+    return laplacian_psi4;
+}
+
+
+double FermionsJastrow::LapliPsi5(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
+{
+    double alpha = m_parameters.back();
+    Particle particle_i = *(particles.at(part_inx));
+
+    double x = particle_i.getPosition().at(0);
+    double y = particle_i.getPosition().at(1);
+    double r2 = x * x + y * y;
+    double psi1 = Psi1(particles, part_inx);
+
+   double laplacian_psi5 = psi1 *
+   (2 - 8 * alpha * x * x + (4 * alpha * alpha * r2 - 4 * alpha) * (x * x - 1));
+
+
+    return laplacian_psi5;
+}
+
+
+double FermionsJastrow::LapliPsi6(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
+{
+    double alpha = m_parameters.back();
+    Particle particle_i = *(particles.at(part_inx));
+
+    double x = particle_i.getPosition().at(0);
+    double y = particle_i.getPosition().at(1);
+    double r2 = x * x + y * y;
+    double psi1 = Psi1(particles, part_inx);
+
+    double laplacian_psi6 = psi1 *
+    (2 - 8 * alpha * y * y + (4 * alpha * alpha * r2 - 4 * alpha) * (y * y - 1));
+
+    return laplacian_psi6;
+}
+
 double FermionsJastrow::SD(std::vector<std::unique_ptr<class Particle>>& particles, int particles_set, int row_changed, int der_order, int grad_comp)
 {
     int N = m_particles;
     double det = 0;
-    Eigen::MatrixXd A(N/2, N/2);
 
     if(N/2 == 3)
     {
+        Eigen::MatrixXd A(N/2, N/2);
         for(int i = 0; i < N/2; i++)
         {
             if (i == row_changed)
             {
                 if (der_order == 0)
                 {
-                    A(i, 0) = Psi1(particles, i + 3 * particles_set);
-                    A(i, 1) = Psi2(particles, i + 3 * particles_set);
-                    A(i, 2) = Psi3(particles, i + 3 * particles_set);
+                    A(i, 0) = Psi1(particles, i + N/2 * particles_set);
+                    A(i, 1) = Psi2(particles, i + N/2 * particles_set);
+                    A(i, 2) = Psi3(particles, i + N/2 * particles_set);
                 }
                 else if (der_order == 1)
                 {
-                    if(grad_comp == 0)
-                    {
-                        A(i, 0) = GradiPsi1(particles, i + 3 * particles_set).at(0);
-                        A(i, 1) = GradiPsi2(particles, i + 3 * particles_set).at(0);
-                        A(i, 2) = GradiPsi3(particles, i + 3 * particles_set).at(0);
-                    }
-                    else if(grad_comp == 1)
-                    {
-                        A(i, 0) = GradiPsi1(particles, i + 3 * particles_set).at(1);
-                        A(i, 1) = GradiPsi2(particles, i + 3 * particles_set).at(1);
-                        A(i, 2) = GradiPsi3(particles, i + 3 * particles_set).at(1);   
-                    }
+                    A(i, 0) = GradiPsi1(particles, i + N/2 * particles_set).at(grad_comp);
+                    A(i, 1) = GradiPsi2(particles, i + N/2 * particles_set).at(grad_comp);
+                    A(i, 2) = GradiPsi3(particles, i + N/2 * particles_set).at(grad_comp);
                 }
                 else if (der_order == 2)
                 {
-                    A(i, 0) = LapliPsi1(particles, i + 3 * particles_set);
-                    A(i, 1) = LapliPsi2(particles, i + 3 * particles_set);
-                    A(i, 2) = LapliPsi3(particles, i + 3 * particles_set);
+                    A(i, 0) = LapliPsi1(particles, i + N/2 * particles_set);
+                    A(i, 1) = LapliPsi2(particles, i + N/2 * particles_set);
+                    A(i, 2) = LapliPsi3(particles, i + N/2 * particles_set);
                 }
             }
             else
             {
-                A(i, 0) = Psi1(particles, i + 3 * particles_set);
-                A(i, 1) = Psi2(particles, i + 3 * particles_set);
-                A(i, 2) = Psi3(particles, i + 3 * particles_set);
+                A(i, 0) = Psi1(particles, i + N/2 * particles_set);
+                A(i, 1) = Psi2(particles, i + N/2 * particles_set);
+                A(i, 2) = Psi3(particles, i + N/2 * particles_set);
             }
         }
         det = A.determinant();
@@ -287,6 +421,54 @@ double FermionsJastrow::SD(std::vector<std::unique_ptr<class Particle>>& particl
         {
             det = LapliPsi1(particles, particles_set);
         }
+    }
+    if(N/2 == 6)
+    {
+        Eigen::MatrixXd A(N/2, N/2);
+        for(int i = 0; i < N/2; i++)
+        {
+            if (i == row_changed)
+            {
+                if (der_order == 0)
+                {
+                    A(i, 0) = Psi1(particles, i + N/2 * particles_set);
+                    A(i, 1) = Psi2(particles, i + N/2 * particles_set);
+                    A(i, 2) = Psi3(particles, i + N/2 * particles_set);
+                    A(i, 3) = Psi4(particles, i + N/2 * particles_set);
+                    A(i, 4) = Psi5(particles, i + N/2 * particles_set);
+                    A(i, 5) = Psi6(particles, i + N/2 * particles_set);
+                }
+                else if (der_order == 1)
+                {
+                    A(i, 0) = GradiPsi1(particles, i + N/2 * particles_set).at(grad_comp);
+                    A(i, 1) = GradiPsi2(particles, i + N/2 * particles_set).at(grad_comp);
+                    A(i, 2) = GradiPsi3(particles, i + N/2 * particles_set).at(grad_comp);
+                    A(i, 3) = GradiPsi4(particles, i + N/2 * particles_set).at(grad_comp);
+                    A(i, 4) = GradiPsi5(particles, i + N/2 * particles_set).at(grad_comp);
+                    A(i, 5) = GradiPsi6(particles, i + N/2 * particles_set).at(grad_comp);
+
+                }
+                else if (der_order == 2)
+                {
+                    A(i, 0) = LapliPsi1(particles, i + N/2 * particles_set);
+                    A(i, 1) = LapliPsi2(particles, i + N/2 * particles_set);
+                    A(i, 2) = LapliPsi3(particles, i + N/2 * particles_set);
+                    A(i, 3) = LapliPsi4(particles, i + N/2 * particles_set);
+                    A(i, 4) = LapliPsi5(particles, i + N/2 * particles_set);
+                    A(i, 5) = LapliPsi6(particles, i + N/2 * particles_set);
+                }
+            }
+            else
+            {
+                A(i, 0) = Psi1(particles, i + N/2 * particles_set);
+                A(i, 1) = Psi2(particles, i + N/2 * particles_set);
+                A(i, 2) = Psi3(particles, i + N/2 * particles_set);
+                A(i, 3) = Psi4(particles, i + N/2 * particles_set);
+                A(i, 4) = Psi5(particles, i + N/2 * particles_set);
+                A(i, 5) = Psi6(particles, i + N/2 * particles_set);
+            }
+        }
+        det = A.determinant();
     }
 
     return det;

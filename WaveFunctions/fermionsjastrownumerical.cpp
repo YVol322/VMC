@@ -66,6 +66,29 @@ var FermionsJastrowNumerical::psi3i(VectorXvar& x, int idx)
     return psi1 * x(idx + 1);
 }
 
+var FermionsJastrowNumerical::psi4i(VectorXvar& x, int idx)
+{
+    var psi1 = psi1i(x, idx);
+
+    return psi1 * x(idx) * x(idx + 1);
+}
+
+
+var FermionsJastrowNumerical::psi5i(VectorXvar& x, int idx)
+{
+    var psi1 = psi1i(x, idx);
+
+    return psi1 * (x(idx) * x(idx) - 1);
+}
+
+
+var FermionsJastrowNumerical::psi6i(VectorXvar& x, int idx)
+{
+    var psi1 = psi1i(x, idx);
+
+    return psi1 * (x(idx + 1) * x(idx + 1) - 1);
+}
+
 
 VectorXvar FermionsJastrowNumerical::GradPsi1i(VectorXvar& x, int idx)
 {
@@ -108,6 +131,48 @@ VectorXvar FermionsJastrowNumerical::GradPsi3i(VectorXvar& x, int idx)
 }
 
 
+VectorXvar FermionsJastrowNumerical::GradPsi4i(VectorXvar& x, int idx)
+{
+    var psi4 = psi4i(x, idx);
+
+    auto [psi4_x, psi4_y] = derivativesx(psi4, wrt(x(idx), x(idx + 1)));
+
+    VectorXvar grad(2);
+    grad(0) = psi4_x;
+    grad(1) = psi4_y;
+
+    return grad;
+}
+
+
+VectorXvar FermionsJastrowNumerical::GradPsi5i(VectorXvar& x, int idx)
+{
+    var psi5 = psi5i(x, idx);
+
+    auto [psi5_x, psi5_y] = derivativesx(psi5, wrt(x(idx), x(idx + 1)));
+
+    VectorXvar grad(2);
+    grad(0) = psi5_x;
+    grad(1) = psi5_y;
+
+    return grad;
+}
+
+
+VectorXvar FermionsJastrowNumerical::GradPsi6i(VectorXvar& x, int idx)
+{
+    var psi6 = psi6i(x, idx);
+
+    auto [psi6_x, psi6_y] = derivativesx(psi6, wrt(x(idx), x(idx + 1)));
+
+    VectorXvar grad(2);
+    grad(0) = psi6_x;
+    grad(1) = psi6_y;
+
+    return grad;
+}
+
+
 var FermionsJastrowNumerical::LaplPsi1i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
@@ -144,6 +209,45 @@ var FermionsJastrowNumerical::LaplPsi3i(VectorXvar& x, int idx)
     auto [psi3_yy] = derivativesx(psi3_y, wrt(x(idx + 1)));
 
     return psi3_xx + psi3_yy;
+}
+
+
+var FermionsJastrowNumerical::LaplPsi4i(VectorXvar& x, int idx)
+{
+    var psi4 = psi4i(x, idx);
+
+    auto [psi4_x, psi4_y] = derivativesx(psi4, wrt(x(idx), x(idx + 1)));
+
+    auto [psi4_xx] = derivativesx(psi4_x, wrt(x(idx)));
+    auto [psi4_yy] = derivativesx(psi4_y, wrt(x(idx + 1)));
+
+    return psi4_xx + psi4_yy;
+}
+
+
+var FermionsJastrowNumerical::LaplPsi5i(VectorXvar& x, int idx)
+{
+    var psi5 = psi5i(x, idx);
+
+    auto [psi5_x, psi5_y] = derivativesx(psi5, wrt(x(idx), x(idx + 1)));
+
+    auto [psi5_xx] = derivativesx(psi5_x, wrt(x(idx)));
+    auto [psi5_yy] = derivativesx(psi5_y, wrt(x(idx + 1)));
+
+    return psi5_xx + psi5_yy;
+}
+
+
+var FermionsJastrowNumerical::LaplPsi6i(VectorXvar& x, int idx)
+{
+    var psi6 = psi6i(x, idx);
+
+    auto [psi6_x, psi6_y] = derivativesx(psi6, wrt(x(idx), x(idx + 1)));
+
+    auto [psi6_xx] = derivativesx(psi6_x, wrt(x(idx)));
+    auto [psi6_yy] = derivativesx(psi6_y, wrt(x(idx + 1)));
+
+    return psi6_xx + psi6_yy;
 }
 
 
@@ -269,6 +373,62 @@ double FermionsJastrowNumerical::SD(VectorXvar& x, int particles, int row_change
         {
             det = val(LaplPsi1i(x, idx));
         }
+    }
+    else if(N/2 == 6)
+    {
+        for(int i = 0; i < N/2; i++)
+        {
+            int idx = i * 2 + N * particles;
+            {
+                if (i == row_changed)
+                {
+                    if (der_order == 0)
+                    {
+                        A(i, 0) = val(psi1i(x, idx));
+                        A(i, 1) = val(psi2i(x, idx));
+                        A(i, 2) = val(psi3i(x, idx));
+                        A(i, 3) = val(psi4i(x, idx));
+                        A(i, 4) = val(psi5i(x, idx));
+                        A(i, 5) = val(psi6i(x, idx));
+                    }
+                    else if (der_order == 1)
+                    {
+                        VectorXvar grad1 = GradPsi1i(x, idx);
+                        VectorXvar grad2 = GradPsi2i(x, idx);
+                        VectorXvar grad3 = GradPsi3i(x, idx);
+                        VectorXvar grad4 = GradPsi4i(x, idx);
+                        VectorXvar grad5 = GradPsi5i(x, idx);
+                        VectorXvar grad6 = GradPsi6i(x, idx);
+
+                        A(i, 0) = val(grad1(grad_comp));
+                        A(i, 1) = val(grad2(grad_comp));
+                        A(i, 2) = val(grad3(grad_comp));
+                        A(i, 3) = val(grad4(grad_comp));
+                        A(i, 4) = val(grad5(grad_comp));
+                        A(i, 5) = val(grad6(grad_comp));
+                    }
+                    else if (der_order == 2)
+                    {
+                        A(i, 0) = val(LaplPsi1i(x, idx));
+                        A(i, 1) = val(LaplPsi2i(x, idx));
+                        A(i, 2) = val(LaplPsi3i(x, idx));
+                        A(i, 3) = val(LaplPsi4i(x, idx));
+                        A(i, 4) = val(LaplPsi5i(x, idx));
+                        A(i, 5) = val(LaplPsi6i(x, idx));
+                    }
+                }
+                else
+                {
+                    A(i, 0) = val(psi1i(x, idx));
+                    A(i, 1) = val(psi2i(x, idx));
+                    A(i, 2) = val(psi3i(x, idx));
+                    A(i, 3) = val(psi4i(x, idx));
+                    A(i, 4) = val(psi5i(x, idx));
+                    A(i, 5) = val(psi6i(x, idx));
+                }
+            }
+        }
+        det = A.determinant();
     }
 
     return det;
