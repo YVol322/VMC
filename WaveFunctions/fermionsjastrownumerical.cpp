@@ -4,14 +4,18 @@
 #include <iostream>
 
 
-#include "fermionsjastrow6autodiff.h"
+#include "fermionsjastrownumerical.h"
 
-FermionsJastrow6Autodiff::FermionsJastrow6Autodiff(double alpha, std::vector<double>beta)
+FermionsJastrowNumerical::FermionsJastrowNumerical(double alpha, std::vector<double>beta)
 {
     assert(alpha >= 0);
-    m_numberOfParameters = 16;
+    int n_betas = beta.size();
+    m_numberOfParameters = n_betas + 1;
     m_parameters.reserve(m_numberOfParameters);
-    for(int i = 0; i < 15; i++)
+
+    m_particles = (1 + sqrt(1 + 8 * n_betas)) / 2;
+
+    for(int i = 0; i < n_betas; i++)
     {
         m_parameters.push_back(beta.at(i));
     }
@@ -19,7 +23,7 @@ FermionsJastrow6Autodiff::FermionsJastrow6Autodiff(double alpha, std::vector<dou
     m_parameters.push_back(alpha);
 }
 
-VectorXvar FermionsJastrow6Autodiff::fill_x(std::vector<std::unique_ptr<class Particle>>& particles)
+VectorXvar FermionsJastrowNumerical::fill_x(std::vector<std::unique_ptr<class Particle>>& particles)
 {
     int n_particles = particles.size();
     int n_dimensions = particles[0] -> getNumberOfDimensions();
@@ -35,7 +39,7 @@ VectorXvar FermionsJastrow6Autodiff::fill_x(std::vector<std::unique_ptr<class Pa
     return x;
 }
 
-var FermionsJastrow6Autodiff::psi1i(VectorXvar& x, int idx)
+var FermionsJastrowNumerical::psi1i(VectorXvar& x, int idx)
 {
     var alpha = m_parameters.back();
 
@@ -47,7 +51,7 @@ var FermionsJastrow6Autodiff::psi1i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrow6Autodiff::psi2i(VectorXvar& x, int idx)
+var FermionsJastrowNumerical::psi2i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
 
@@ -55,7 +59,7 @@ var FermionsJastrow6Autodiff::psi2i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrow6Autodiff::psi3i(VectorXvar& x, int idx)
+var FermionsJastrowNumerical::psi3i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
 
@@ -63,7 +67,7 @@ var FermionsJastrow6Autodiff::psi3i(VectorXvar& x, int idx)
 }
 
 
-VectorXvar FermionsJastrow6Autodiff::GradPsi1i(VectorXvar& x, int idx)
+VectorXvar FermionsJastrowNumerical::GradPsi1i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
 
@@ -76,7 +80,7 @@ VectorXvar FermionsJastrow6Autodiff::GradPsi1i(VectorXvar& x, int idx)
     return grad;
 }
 
-VectorXvar FermionsJastrow6Autodiff::GradPsi2i(VectorXvar& x, int idx)
+VectorXvar FermionsJastrowNumerical::GradPsi2i(VectorXvar& x, int idx)
 {
     var psi2 = psi2i(x, idx);
 
@@ -90,7 +94,7 @@ VectorXvar FermionsJastrow6Autodiff::GradPsi2i(VectorXvar& x, int idx)
 }
 
 
-VectorXvar FermionsJastrow6Autodiff::GradPsi3i(VectorXvar& x, int idx)
+VectorXvar FermionsJastrowNumerical::GradPsi3i(VectorXvar& x, int idx)
 {
     var psi3 = psi3i(x, idx);
 
@@ -104,7 +108,7 @@ VectorXvar FermionsJastrow6Autodiff::GradPsi3i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrow6Autodiff::LaplPsi1i(VectorXvar& x, int idx)
+var FermionsJastrowNumerical::LaplPsi1i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
 
@@ -117,7 +121,7 @@ var FermionsJastrow6Autodiff::LaplPsi1i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrow6Autodiff::LaplPsi2i(VectorXvar& x, int idx)
+var FermionsJastrowNumerical::LaplPsi2i(VectorXvar& x, int idx)
 {
     var psi2 = psi2i(x, idx);
 
@@ -130,7 +134,7 @@ var FermionsJastrow6Autodiff::LaplPsi2i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrow6Autodiff::LaplPsi3i(VectorXvar& x, int idx)
+var FermionsJastrowNumerical::LaplPsi3i(VectorXvar& x, int idx)
 {
     var psi3 = psi3i(x, idx);
 
@@ -143,9 +147,9 @@ var FermionsJastrow6Autodiff::LaplPsi3i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrow6Autodiff::Jastrow(const VectorXvar& x)
+var FermionsJastrowNumerical::Jastrow(const VectorXvar& x)
 {
-    int N = x.size() / 2;
+    int N = m_particles;
     var sum = 0.0;
 
     for (int i = 0; i < N - 1; ++i)
@@ -166,7 +170,7 @@ var FermionsJastrow6Autodiff::Jastrow(const VectorXvar& x)
     return exp(sum);
 }
 
-VectorXvar FermionsJastrow6Autodiff::GradiJastrow(VectorXvar& x, int idx)
+VectorXvar FermionsJastrowNumerical::GradiJastrow(VectorXvar& x, int idx)
 {
     auto wrapped_Jastrow = [&](const VectorXvar& x_) {
         return Jastrow(x_);
@@ -182,7 +186,7 @@ VectorXvar FermionsJastrow6Autodiff::GradiJastrow(VectorXvar& x, int idx)
     return grad;
 }
 
-var FermionsJastrow6Autodiff::LapliJastrow(VectorXvar& x, int idx)
+var FermionsJastrowNumerical::LapliJastrow(VectorXvar& x, int idx)
 {
     // Wrap Jastrow in a lambda for autodiff
     auto wrapped_Jastrow = [&](const VectorXvar& x_) {
@@ -201,57 +205,77 @@ var FermionsJastrow6Autodiff::LapliJastrow(VectorXvar& x, int idx)
     return d2Jdx2 + d2Jdy2;
 }
 
-double FermionsJastrow6Autodiff::SD(VectorXvar& x, int particles, int row_changed, int der_order, int grad_comp)
+double FermionsJastrowNumerical::SD(VectorXvar& x, int particles, int row_changed, int der_order, int grad_comp)
 {
-    MatrixXvar A(3, 3);
+    int N = m_particles;
 
-    for(int i = 0; i < 3; i++)
+    Eigen::MatrixXd A(N/2, N/2);
+    double det = 0;
+
+    if(N/2 == 3)
     {
-        int idx = i * 2 + 6 * particles;
-
-        if (i == row_changed)
+        for(int i = 0; i < N/2; i++)
         {
-            if (der_order == 0)
+            int idx = i * 2 + N * particles;
             {
-                A(i, 0) = psi1i(x, idx);
-                A(i, 1) = psi2i(x, idx);
-                A(i, 2) = psi3i(x, idx);
-            }
-            else if (der_order == 1)
-            {
-                VectorXvar grad1 = GradPsi1i(x, idx);
-                VectorXvar grad2 = GradPsi2i(x, idx);
-                VectorXvar grad3 = GradPsi3i(x, idx);
+                if (i == row_changed)
+                {
+                    if (der_order == 0)
+                    {
+                        A(i, 0) = val(psi1i(x, idx));
+                        A(i, 1) = val(psi2i(x, idx));
+                        A(i, 2) = val(psi3i(x, idx));
+                    }
+                    else if (der_order == 1)
+                    {
+                        VectorXvar grad1 = GradPsi1i(x, idx);
+                        VectorXvar grad2 = GradPsi2i(x, idx);
+                        VectorXvar grad3 = GradPsi3i(x, idx);
 
-                A(i, 0) = grad1(grad_comp);
-                A(i, 1) = grad2(grad_comp);
-                A(i, 2) = grad3(grad_comp);
-            }
-            else if (der_order == 2)
-            {
-                A(i, 0) = LaplPsi1i(x, idx);
-                A(i, 1) = LaplPsi2i(x, idx);
-                A(i, 2) = LaplPsi3i(x, idx);
+                        A(i, 0) = val(grad1(grad_comp));
+                        A(i, 1) = val(grad2(grad_comp));
+                        A(i, 2) = val(grad3(grad_comp));
+                    }
+                    else if (der_order == 2)
+                    {
+                        A(i, 0) = val(LaplPsi1i(x, idx));
+                        A(i, 1) = val(LaplPsi2i(x, idx));
+                        A(i, 2) = val(LaplPsi3i(x, idx));
+                    }
+                }
+                else
+                {
+                    A(i, 0) = val(psi1i(x, idx));
+                    A(i, 1) = val(psi2i(x, idx));
+                    A(i, 2) = val(psi3i(x, idx));
+                }
             }
         }
-        else
+        det = A.determinant();
+    }
+    else if(N/2 == 1)
+    {
+        int idx = N * particles;
+        if(der_order == 0)
         {
-            A(i, 0) = psi1i(x, idx);
-            A(i, 1) = psi2i(x, idx);
-            A(i, 2) = psi3i(x, idx);
+            det = val(psi1i(x, idx));
+        }
+        else if(der_order == 1)
+        {
+            VectorXvar grad1 = GradPsi1i(x, idx);
+            det = val(grad1(grad_comp));
+        }
+        else if(der_order == 2)
+        {
+            det = val(LaplPsi1i(x, idx));
         }
     }
 
-    var det = 
-      A(0,0) * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
-    - A(0,1) * (A(1,0)*A(2,2) - A(1,2)*A(2,0))
-    + A(0,2) * (A(1,0)*A(2,1) - A(1,1)*A(2,0));
-
-    return val(det);
+    return det;
 }
 
 
-double FermionsJastrow6Autodiff::GradPsi1GradJOverPsi(VectorXvar& x)
+double FermionsJastrowNumerical::GradPsi1GradJOverPsi(VectorXvar& x)
 {
     double sum = 0.0;
 
@@ -259,7 +283,9 @@ double FermionsJastrow6Autodiff::GradPsi1GradJOverPsi(VectorXvar& x)
     double Psi_down = SD(x, 1, 0, 0, 0);
     double J = val(Jastrow(x));
 
-    for (int i = 0; i < 6; ++i)
+    int N = m_particles;
+
+    for (int i = 0; i < N; ++i)
     {
         int idx = i * 2;
 
@@ -267,7 +293,7 @@ double FermionsJastrow6Autodiff::GradPsi1GradJOverPsi(VectorXvar& x)
         double gradJ_x = val(gradJ(0));
         double gradJ_y = val(gradJ(1));
 
-        if (i < 3)
+        if (i < N/2)
         {
             double dPsi_dx = SD(x, 0, i, 1, 0);
             double dPsi_dy = SD(x, 0, i, 1, 1);
@@ -276,7 +302,7 @@ double FermionsJastrow6Autodiff::GradPsi1GradJOverPsi(VectorXvar& x)
         }
         else
         {
-            int j = i - 3;
+            int j = i - N/2;
             double dPsi_dx = SD(x, 1, j, 1, 0);
             double dPsi_dy = SD(x, 1, j, 1, 1);
 
@@ -289,22 +315,24 @@ double FermionsJastrow6Autodiff::GradPsi1GradJOverPsi(VectorXvar& x)
 }
 
 
-double FermionsJastrow6Autodiff::LaplacianPsi1OverPsi1(VectorXvar& x)
+double FermionsJastrowNumerical::LaplacianPsi1OverPsi1(VectorXvar& x)
 {
     double sum = 0.0;
 
     double Psi_up = SD(x, 0, 0, 0, 0);
     double Psi_down = SD(x, 1, 0, 0, 0);
 
-    for (int i = 0; i < 6; ++i)
+    int N = m_particles;
+
+    for (int i = 0; i < N; ++i)
     {
-        if (i < 3)
+        if (i < N/2)
         {
             sum += SD(x, 0, i, 2, 0) * Psi_down;
         }
         else
         {
-            int j = i - 3;
+            int j = i - N/2;
             sum += Psi_up * SD(x, 1, j, 2, 0);
         }
     }
@@ -312,12 +340,14 @@ double FermionsJastrow6Autodiff::LaplacianPsi1OverPsi1(VectorXvar& x)
     return sum / (Psi_up * Psi_down);
 }
 
-double FermionsJastrow6Autodiff::LaplacianJOverJ(VectorXvar& x)
+double FermionsJastrowNumerical::LaplacianJOverJ(VectorXvar& x)
 {
     double J = val(Jastrow(x));
     double sum = 0.0;
 
-    for (int i = 0; i < 6; ++i)
+    int N = m_particles;
+
+    for (int i = 0; i < N; ++i)
     {
         int idx = i * 2;
         sum += val(LapliJastrow(x, idx));
@@ -327,7 +357,7 @@ double FermionsJastrow6Autodiff::LaplacianJOverJ(VectorXvar& x)
 }
 
 
-double FermionsJastrow6Autodiff::evaluate(std::vector<std::unique_ptr<class Particle>>& particles)
+double FermionsJastrowNumerical::evaluate(std::vector<std::unique_ptr<class Particle>>& particles)
 {
     VectorXvar x = fill_x(particles);
 
@@ -340,7 +370,7 @@ double FermionsJastrow6Autodiff::evaluate(std::vector<std::unique_ptr<class Part
 
 
 
-double FermionsJastrow6Autodiff::computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles)
+double FermionsJastrowNumerical::computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles)
 {
     VectorXvar x = fill_x(particles);
 
@@ -353,7 +383,7 @@ double FermionsJastrow6Autodiff::computeDoubleDerivative(std::vector<std::unique
     return result;
 }
 
-double FermionsJastrow6Autodiff::r_squared(std::vector<std::unique_ptr<class Particle>>& particles, int part_index)
+double FermionsJastrowNumerical::r_squared(std::vector<std::unique_ptr<class Particle>>& particles, int part_index)
 {
     Particle particle_i = *(particles.at(part_index));
     int n_dimensions = particle_i.getNumberOfDimensions();
@@ -369,7 +399,7 @@ double FermionsJastrow6Autodiff::r_squared(std::vector<std::unique_ptr<class Par
     return r2;
 }
 
-double FermionsJastrow6Autodiff::r_ij(std::vector<std::unique_ptr<class Particle>>& particles, int i, int j)
+double FermionsJastrowNumerical::r_ij(std::vector<std::unique_ptr<class Particle>>& particles, int i, int j)
 {
     Particle& pi = *(particles.at(i));
     Particle& pj = *(particles.at(j));

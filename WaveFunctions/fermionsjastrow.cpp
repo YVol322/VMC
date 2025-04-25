@@ -9,9 +9,13 @@
 FermionsJastrow::FermionsJastrow(double alpha, std::vector<double> beta)
 {
     assert(alpha >= 0);
-    m_numberOfParameters = 16;
+    int n_betas = beta.size();
+    m_numberOfParameters = n_betas + 1;
     m_parameters.reserve(m_numberOfParameters);
-    for(int i = 0; i < 15; i++)
+
+    m_particles = (1 + sqrt(1 + 8 * n_betas)) / 2;
+
+    for(int i = 0; i < n_betas; i++)
     {
         m_parameters.push_back(beta.at(i));
     }
@@ -23,7 +27,7 @@ FermionsJastrow::FermionsJastrow(double alpha, std::vector<double> beta)
 double FermionsJastrow::Jastrow(std::vector<std::unique_ptr<class Particle>>& particles)
 {
     double sum = 0.0;
-    int N = particles.size();
+    int N = m_particles;
 
     for (int i = 0; i < N - 1; ++i)
     {
@@ -222,49 +226,68 @@ double FermionsJastrow::LapliPsi3(std::vector<std::unique_ptr<class Particle>>& 
 
 double FermionsJastrow::SD(std::vector<std::unique_ptr<class Particle>>& particles, int particles_set, int row_changed, int der_order, int grad_comp)
 {
-    Eigen::MatrixXd A(3, 3);
+    int N = m_particles;
+    double det = 0;
+    Eigen::MatrixXd A(N/2, N/2);
 
-    for(int i = 0; i < 3; i++)
+    if(N/2 == 3)
     {
-        if (i == row_changed)
+        for(int i = 0; i < N/2; i++)
         {
-            if (der_order == 0)
+            if (i == row_changed)
+            {
+                if (der_order == 0)
+                {
+                    A(i, 0) = Psi1(particles, i + 3 * particles_set);
+                    A(i, 1) = Psi2(particles, i + 3 * particles_set);
+                    A(i, 2) = Psi3(particles, i + 3 * particles_set);
+                }
+                else if (der_order == 1)
+                {
+                    if(grad_comp == 0)
+                    {
+                        A(i, 0) = GradiPsi1(particles, i + 3 * particles_set).at(0);
+                        A(i, 1) = GradiPsi2(particles, i + 3 * particles_set).at(0);
+                        A(i, 2) = GradiPsi3(particles, i + 3 * particles_set).at(0);
+                    }
+                    else if(grad_comp == 1)
+                    {
+                        A(i, 0) = GradiPsi1(particles, i + 3 * particles_set).at(1);
+                        A(i, 1) = GradiPsi2(particles, i + 3 * particles_set).at(1);
+                        A(i, 2) = GradiPsi3(particles, i + 3 * particles_set).at(1);   
+                    }
+                }
+                else if (der_order == 2)
+                {
+                    A(i, 0) = LapliPsi1(particles, i + 3 * particles_set);
+                    A(i, 1) = LapliPsi2(particles, i + 3 * particles_set);
+                    A(i, 2) = LapliPsi3(particles, i + 3 * particles_set);
+                }
+            }
+            else
             {
                 A(i, 0) = Psi1(particles, i + 3 * particles_set);
                 A(i, 1) = Psi2(particles, i + 3 * particles_set);
                 A(i, 2) = Psi3(particles, i + 3 * particles_set);
             }
-            else if (der_order == 1)
-            {
-                if(grad_comp == 0)
-                {
-                    A(i, 0) = GradiPsi1(particles, i + 3 * particles_set).at(0);
-                    A(i, 1) = GradiPsi2(particles, i + 3 * particles_set).at(0);
-                    A(i, 2) = GradiPsi3(particles, i + 3 * particles_set).at(0);
-                }
-                else if(grad_comp == 1)
-                {
-                    A(i, 0) = GradiPsi1(particles, i + 3 * particles_set).at(1);
-                    A(i, 1) = GradiPsi2(particles, i + 3 * particles_set).at(1);
-                    A(i, 2) = GradiPsi3(particles, i + 3 * particles_set).at(1);   
-                }
-            }
-            else if (der_order == 2)
-            {
-                A(i, 0) = LapliPsi1(particles, i + 3 * particles_set);
-                A(i, 1) = LapliPsi2(particles, i + 3 * particles_set);
-                A(i, 2) = LapliPsi3(particles, i + 3 * particles_set);
-            }
         }
-        else
+        det = A.determinant();
+    }
+    else if(N/2 == 1)
+    {
+        if(der_order == 0)
         {
-            A(i, 0) = Psi1(particles, i + 3 * particles_set);
-            A(i, 1) = Psi2(particles, i + 3 * particles_set);
-            A(i, 2) = Psi3(particles, i + 3 * particles_set);
+            det = Psi1(particles, particles_set);
+        }
+        else if(der_order == 1)
+        {
+            det = GradiPsi1(particles, particles_set).at(grad_comp);
+        }
+        else if(der_order == 2)
+        {
+            det = LapliPsi1(particles, particles_set);
         }
     }
-
-    double det = A.determinant();
 
     return det;
 }
@@ -272,7 +295,7 @@ double FermionsJastrow::SD(std::vector<std::unique_ptr<class Particle>>& particl
 
 double FermionsJastrow::LapliJOverJ(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
 {
-    int n_particles = particles.size();
+    int n_particles = m_particles;
     int n_dimensions = particles[0]->getNumberOfDimensions();
 
     std::vector<double> grad_i = GradiJOverJ(particles, part_inx);
@@ -303,7 +326,7 @@ double FermionsJastrow::LapliJOverJ(std::vector<std::unique_ptr<class Particle>>
 
 double FermionsJastrow::LaplPsi1OverPsi1(std::vector<std::unique_ptr<class Particle>>& particles)
 {
-    int n_particles = particles.size();
+    int n_particles = m_particles;
 
     double det_up = SD(particles, 0, 0, 0, 0);
     double det_down = SD(particles, 1, 0, 0, 0);
@@ -322,6 +345,7 @@ double FermionsJastrow::LaplPsi1OverPsi1(std::vector<std::unique_ptr<class Parti
 
 double FermionsJastrow::GradiPsi1GradiJOverPsi(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
 {
+    int n_particles = m_particles;
     int n_dimensions = particles[0]->getNumberOfDimensions();
 
     std::vector<double> grad_J = GradiJOverJ(particles, part_inx);
@@ -332,7 +356,7 @@ double FermionsJastrow::GradiPsi1GradiJOverPsi(std::vector<std::unique_ptr<class
 
     double sum = 0.0;
 
-    if (part_inx < 3)
+    if (part_inx < n_particles/2)
     {
         for (int i = 0; i < n_dimensions; ++i)
         {
@@ -342,7 +366,7 @@ double FermionsJastrow::GradiPsi1GradiJOverPsi(std::vector<std::unique_ptr<class
     }
     else
     {
-        int local_index = part_inx - 3;
+        int local_index = part_inx - n_particles/2;
         for (int i = 0; i < n_dimensions; ++i)
         {
             grad_psi.at(i) = SD(particles, 1, local_index, 1, i) / det_down;

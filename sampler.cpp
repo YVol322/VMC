@@ -39,7 +39,7 @@ void Sampler::sample(bool acceptedStep, System* system) {
     m_stepNumber++;
     m_numberOfAcceptedSteps += acceptedStep;
 
-    int N = 6;
+    int N = m_numberOfParticles;
     int pairIndex = 0;
     for (int i = 0; i < N - 1; i++) {
         for (int j = i + 1; j < N; j++) {
@@ -84,7 +84,7 @@ void Sampler::printOutputToTerminal(System& system) {
 void Sampler::computeAverages() {
     m_energy = m_cumulativeEnergy / m_numberOfMetropolisSteps;
 
-    for (int i = 0; i < 15; i++)
+    for (int i = 0; i < m_nPairs; i++)
     {
         m_rij[i] = m_cumulativerij[i] / m_numberOfMetropolisSteps;
         m_Elrij[i] = m_cumulativeEnergyrij[i] / m_numberOfMetropolisSteps;

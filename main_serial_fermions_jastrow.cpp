@@ -4,8 +4,7 @@
 #include <chrono>
 
 #include "system.h"
-#include "WaveFunctions/fermionsjastrow2autodiff.h"
-#include "WaveFunctions/fermionsjastrow6autodiff.h"
+#include "WaveFunctions/fermionsjastrownumerical.h"
 #include "WaveFunctions/fermionsjastrow2.h"
 #include "WaveFunctions/fermionsjastrow.h"
 #include "Hamiltonians/harmonicoscillator.h"
@@ -26,7 +25,7 @@ int main() {
     int seed = 2025;
 
     unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 6;
+    unsigned int numberOfParticles = 2;
     unsigned int numberOfMetropolisSteps = (unsigned int) 1e3;
     unsigned int numberOfEquilibrationSteps = (unsigned int) 1e2;
 
@@ -34,13 +33,29 @@ int main() {
     double alpha = 0.5;
 
 	int nPairs = numberOfParticles * (numberOfParticles - 1) / 2;
-    std::vector<double> beta(nPairs, 0);
+    std::vector<double> beta(nPairs, 0.145819);
+
+	//beta[0] = 0.142175;
+	//beta[1] = 0.145953;
+	//beta[2] = 0.19525;
+	//beta[3] = 0.20664;
+	//beta[4] = 0.211661;
+	//beta[5] = 0.127557;
+	//beta[6] = 0.224082;
+	//beta[7] = 0.162106;
+	//beta[8] = 0.223895;
+	//beta[9] = 0.157206;
+	//beta[10] = 0.205652;
+	//beta[11] = 0.209072;
+	//beta[12] = 0.133737;
+	//beta[13] = 0.151694;
+	//beta[14] = 0.132747;
 
 
     double stepLength = 1;
 
-	double learning_rate = 1e-1;
-	double stop_at = 6e-2;
+	double learning_rate = 1e-2;
+	double stop_at = 5e-2;
 	double max_iters = 1000;
 	double iter = 0;
     std::vector<double> grad_beta(nPairs, 1);
@@ -52,7 +67,7 @@ int main() {
 		auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
 		auto system = std::make_unique<System>(
         std::make_unique<HarmonicOscillator>(omega),
-        std::make_unique<FermionsJastrow>(alpha, beta),
+        std::make_unique<FermionsJastrow2>(alpha, beta),
         std::make_unique<Metropolis>(std::move(rng)),
         std::move(particles));
 
@@ -75,7 +90,7 @@ int main() {
 		double mean_El;
 		double mean_El_times_rij;
 
-		for (int i = 0; i < 15; i++)
+		for (int i = 0; i < nPairs; i++)
 		{
 			mean_rij = (sampler -> getrij()).at(i);
 			mean_El = sampler -> getEnergy();
@@ -101,6 +116,7 @@ int main() {
 
 		iter++;
 	}
+	//for(int i = 0; i < nPairs; i++) std::cout << beta[i] << std::endl;
 
     return 0;
 }

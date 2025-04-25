@@ -23,7 +23,15 @@ double HarmonicOscillator::computeLocalEnergy(
 
     double potentialEnergy = 0.5 * r2 * m_omega * m_omega;
     double kineticEnergy = -0.5 * waveFunction.computeDoubleDerivative(particles);
-    double r12 = waveFunction.r_ij(particles, 0, 1);
 
-    return kineticEnergy + potentialEnergy + 1.0 /r12 ;
+    double rij;
+    double coulombEnergy = 0.0;
+    for (int i = 0; i < n_particles; ++i) {
+        for (int j = i + 1; j < n_particles; ++j) {
+            rij = waveFunction.r_ij(particles, i, j);
+            coulombEnergy += 1.0 / rij;
+        }
+    }
+
+    return kineticEnergy + potentialEnergy + coulombEnergy;
 }

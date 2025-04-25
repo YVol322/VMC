@@ -9,9 +9,9 @@ using autodiff::var;
 using autodiff::VectorXvar;
 using autodiff::MatrixXvar;
 
-class FermionsJastrow6Autodiff : public WaveFunction {
+class FermionsJastrowNumerical : public WaveFunction {
 public:
-    FermionsJastrow6Autodiff(double alpha, std::vector<double> beta);
+    FermionsJastrowNumerical(double alpha, std::vector<double> beta);
     
     double evaluate(std::vector<std::unique_ptr<class Particle>>& particles);
     double computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles);
