@@ -26,6 +26,8 @@ public:
     double getEnergy() { return m_energy; }
     std::vector<double> getEnergyrij() { return m_Elrij; }
     std::vector<double> getrij() { return m_rij; }
+    std::vector<double> getO() { return m_O; }
+    std::vector<double> getEnergyO() { return m_ElO; }
 
 private:
     unsigned int m_stepNumber = 0;
@@ -42,4 +44,9 @@ private:
     std::vector<double> m_Elrij;
     std::vector<double> m_cumulativeEnergyrij;
     std::vector<double> m_cumulativerij;
+
+    std::vector<double> m_O;
+    std::vector<double> m_ElO;
+    std::vector<double> m_cumulativeElO;
+    std::vector<double> m_cumulativeO;
 };

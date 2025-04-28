@@ -6,14 +6,14 @@
 
 #include "fermionsjastrow.h"
 
-FermionsJastrow::FermionsJastrow(double alpha, std::vector<double> beta)
+FermionsJastrow::FermionsJastrow(double alpha, std::vector<double> beta, int mode, int n_particles)
 {
     assert(alpha >= 0);
     int n_betas = beta.size();
     m_numberOfParameters = n_betas + 1;
     m_parameters.reserve(m_numberOfParameters);
 
-    m_particles = (1 + sqrt(1 + 8 * n_betas)) / 2;
+    m_particles = n_particles;
 
     for(int i = 0; i < n_betas; i++)
     {
@@ -21,6 +21,8 @@ FermionsJastrow::FermionsJastrow(double alpha, std::vector<double> beta)
     }
 
     m_parameters.push_back(alpha);
+
+    m_mode = mode;
 }
 
 
@@ -39,6 +41,36 @@ double FermionsJastrow::Jastrow(std::vector<std::unique_ptr<class Particle>>& pa
             double beta_ij = m_parameters.at(idx);
 
             sum += beta_ij * rij;
+        }
+    }
+
+    return std::exp(sum);
+}
+
+
+double FermionsJastrow::PadeJastrow(std::vector<std::unique_ptr<class Particle>>& particles)
+{
+    double sum = 0.0;
+    int N = m_particles;
+    double aij = 0;
+
+    for (int i = 0; i < N - 1; ++i)
+    {
+        for (int j = i + 1; j < N; ++j)
+        {
+            if ((i < N/2 && j >= N/2) || (i >= N/2 && j < N/2))
+            {
+                aij = 1;
+            }
+            else
+            {
+                aij = 1.0/3.0;
+            }
+            
+            double rij = r_ij(particles, i, j);
+            double beta = m_parameters.at(0);
+
+            sum += aij * rij / (1 + beta * rij);
         }
     }
 
@@ -73,6 +105,48 @@ std::vector<double> FermionsJastrow::GradiJOverJ(std::vector<std::unique_ptr<cla
             double coord_l = particle_l.getPosition().at(k);
 
             grad.at(k) += beta_il * (coord_i - coord_l) / ril;
+        }
+    }
+
+    return grad;
+}
+
+
+std::vector<double> FermionsJastrow::GradiPJOverPJ(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
+{
+    int n_particles = particles.size();
+    int n_dimensions = particles[0]->getNumberOfDimensions();
+
+    Particle particle_i = *(particles.at(part_inx));
+
+    std::vector<double> grad(n_dimensions, 0.0);
+
+    double aij = 0;
+
+    for(int l = 0; l < n_particles; l++)
+    {
+        if(l == part_inx) continue;
+
+        Particle particle_l = *(particles.at(l));
+        double ril = r_ij(particles, part_inx, l);
+
+        double beta = m_parameters.at(0);
+
+        if ((part_inx < n_particles/2 && l >= n_particles/2) || (part_inx >= n_particles/2 && l < n_particles/2))
+        {
+            aij = 1;
+        }
+        else
+        {
+            aij = 1.0/3.0;
+        }
+
+        for(int k = 0; k < n_dimensions; k++)
+        {
+            double coord_i = particle_i.getPosition().at(k);
+            double coord_l = particle_l.getPosition().at(k);
+
+            grad.at(k) += aij * (coord_i - coord_l) / (ril * (1 + beta * ril) * (1 + beta * ril));
         }
     }
 
@@ -519,6 +593,46 @@ double FermionsJastrow::LapliJOverJ(std::vector<std::unique_ptr<class Particle>>
 }
 
 
+double FermionsJastrow::LapliPJOverPJ(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx)
+{
+    int n_particles = m_particles;
+    int n_dimensions = particles[0]->getNumberOfDimensions();
+
+    std::vector<double> grad_i = GradiPJOverPJ(particles, part_inx);
+    double sum1 = 0.0;
+    for (int m = 0; m < n_dimensions; ++m)
+    {
+        sum1 += grad_i.at(m) * grad_i.at(m);
+    }
+
+    double sum2 = 0.0;
+    double aij = 0.0;
+    double beta = m_parameters.at(0);
+
+    for (int l = 0; l < n_particles; ++l)
+    {
+        if (l == part_inx) continue;
+
+        if ((part_inx < n_particles/2 && l >= n_particles/2) || (part_inx >= n_particles/2 && l < n_particles/2))
+        {
+            aij = 1;
+        }
+        else
+        {
+            aij = 1.0/3.0;
+        }
+
+        double ril = r_ij(particles, part_inx, l);
+        double t = 1 + beta * ril;
+
+        sum2 += aij * ( 1/(ril * t * t) - 2*beta/(t*t*t) );
+    }
+
+    return sum1 + sum2;
+}
+
+
+
 double FermionsJastrow::LaplPsi1OverPsi1(std::vector<std::unique_ptr<class Particle>>& particles)
 {
     int n_particles = m_particles;
@@ -543,7 +657,11 @@ double FermionsJastrow::GradiPsi1GradiJOverPsi(std::vector<std::unique_ptr<class
     int n_particles = m_particles;
     int n_dimensions = particles[0]->getNumberOfDimensions();
 
-    std::vector<double> grad_J = GradiJOverJ(particles, part_inx);
+    std::vector<double> grad_J;
+    if(m_mode == 0) grad_J = GradiJOverJ(particles, part_inx);
+    else grad_J = GradiPJOverPJ(particles, part_inx);
+
+
     std::vector<double> grad_psi(n_dimensions);
 
     double det_up = SD(particles, 0, 0, 0, 0);
@@ -578,7 +696,10 @@ double FermionsJastrow::evaluate(std::vector<std::unique_ptr<class Particle>>& p
 {
     double det_up = SD(particles, 0, 0, 0, 0);
     double det_down = SD(particles, 1, 0, 0, 0);
-    double J = Jastrow(particles);
+    double J;
+
+    if(m_mode == 0) J = Jastrow(particles);
+    else J = PadeJastrow(particles);
 
     return det_up * det_down * J;
 }
@@ -591,10 +712,21 @@ double FermionsJastrow::computeDoubleDerivative(std::vector<std::unique_ptr<clas
     double LaplJ = 0;
     double GradGrad = 0;
 
-    for(int i = 0; i < n_particles; i++)
+    if(m_mode == 0)
     {
-        LaplJ += LapliJOverJ(particles, i);
-        GradGrad += GradiPsi1GradiJOverPsi(particles, i);
+        for(int i = 0; i < n_particles; i++)
+        {
+            LaplJ += LapliJOverJ(particles, i);
+            GradGrad += GradiPsi1GradiJOverPsi(particles, i);
+        }
+    }
+    else
+    {
+        for(int i = 0; i < n_particles; i++)
+        {
+            LaplJ += LapliPJOverPJ(particles, i);
+            GradGrad += GradiPsi1GradiJOverPsi(particles, i);
+        }
     }
 
     return LaplPsi + LaplJ + GradGrad;

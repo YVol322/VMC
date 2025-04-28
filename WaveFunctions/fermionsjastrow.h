@@ -4,7 +4,7 @@
 
 class FermionsJastrow : public WaveFunction {
 public:
-    FermionsJastrow(double alpha, std::vector<double> beta);
+    FermionsJastrow(double alpha, std::vector<double> beta, int mode, int n_particles);
 
     double evaluate(std::vector<std::unique_ptr<class Particle>>& particles);
     double computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles);
@@ -38,4 +38,8 @@ public:
     double LapliJOverJ(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx);
     double LaplPsi1OverPsi1(std::vector<std::unique_ptr<class Particle>>& particles);
     double GradiPsi1GradiJOverPsi(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx);
+
+    double PadeJastrow(std::vector<std::unique_ptr<class Particle>>& particles);
+    std::vector<double> GradiPJOverPJ(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx);
+    double LapliPJOverPJ(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx);
 };

@@ -27,6 +27,11 @@ Sampler::Sampler(
     m_Elrij = std::vector<double>(m_nPairs, 0.0);
     m_cumulativeEnergyrij = std::vector<double>(m_nPairs, 0.0);
     m_cumulativerij = std::vector<double>(m_nPairs, 0.0);
+
+    m_O = std::vector<double>(1, 0.0);
+    m_ElO = std::vector<double>(1, 0.0);
+    m_cumulativeElO = std::vector<double>(1, 0.0);
+    m_cumulativeO = std::vector<double>(1, 0.0);
 }
 
 
@@ -41,15 +46,36 @@ void Sampler::sample(bool acceptedStep, System* system) {
 
     int N = m_numberOfParticles;
     int pairIndex = 0;
-    for (int i = 0; i < N - 1; i++) {
-        for (int j = i + 1; j < N; j++) {
+
+    double O = 0.0;
+    for (int i = 0; i < N - 1; i++)
+    {
+        for (int j = i + 1; j < N; j++)
+        {
             double rij = system->computerij(i, j);
             m_cumulativerij[pairIndex] += rij;
             m_cumulativeEnergyrij[pairIndex] += rij * localEnergy;
+
+            double aij;
+            if ((i < N/2 && j >= N/2) || (i >= N/2 && j < N/2))
+            {
+                aij = 1.0;
+            }
+            else
+            {
+                aij = 1.0/3.0;
+            }
+
+            double beta = system -> getWaveFunctionParameters().at(0);
+            double t = 1.0 + beta * rij;
+
+            O += -aij * rij * rij / (t * t);
+
             pairIndex++;
         }
     }
-
+    m_cumulativeO[0] += O;
+    m_cumulativeElO[0] += O * localEnergy;
 }
 
 void Sampler::printOutputToTerminal(System& system) {
@@ -89,6 +115,8 @@ void Sampler::computeAverages() {
         m_rij[i] = m_cumulativerij[i] / m_numberOfMetropolisSteps;
         m_Elrij[i] = m_cumulativeEnergyrij[i] / m_numberOfMetropolisSteps;
     }
+    m_ElO[0] = m_cumulativeElO[0] / m_numberOfMetropolisSteps;
+    m_O[0] = m_cumulativeO[0] / m_numberOfMetropolisSteps;
 }
 
 void Sampler::setEnergy(double en) {

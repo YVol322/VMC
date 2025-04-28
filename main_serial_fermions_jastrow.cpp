@@ -25,6 +25,7 @@ int main() {
 
     unsigned int numberOfDimensions = 2;
     unsigned int numberOfParticles = 12;
+	int mode = 0;
     unsigned int numberOfMetropolisSteps = (unsigned int) 1e3;
     unsigned int numberOfEquilibrationSteps = (unsigned int) 1e2;
 
@@ -32,34 +33,20 @@ int main() {
     double alpha = 0.5;
 
 	int nPairs = numberOfParticles * (numberOfParticles - 1) / 2;
-    std::vector<double> beta(nPairs, 0);
-    //std::vector<double> beta(nPairs, 0.145819);
-
-	//beta[0] = 0.142175;
-	//beta[1] = 0.145953;
-	//beta[2] = 0.19525;
-	//beta[3] = 0.20664;
-	//beta[4] = 0.211661;
-	//beta[5] = 0.127557;
-	//beta[6] = 0.224082;
-	//beta[7] = 0.162106;
-	//beta[8] = 0.223895;
-	//beta[9] = 0.157206;
-	//beta[10] = 0.205652;
-	//beta[11] = 0.209072;
-	//beta[12] = 0.133737;
-	//beta[13] = 0.151694;
-	//beta[14] = 0.132747;
+    std::vector<double> beta(nPairs, 0.1);
+	std::vector<double> betaPJ(1, 0.48);
 
 
     double stepLength = 1;
 
 	double learning_rate = 1e-2;
-	double stop_at = 5e-2;
+	double stop_at = 0.25;
 	double max_iters = 1000;
 	double iter = 0;
     std::vector<double> grad_beta(nPairs, 1);
-	double l2_norm = 1.0;
+	double l2_norm = 4.1;
+
+    std::vector<double> grad_betaPJ(1, 1);
 	
 	while(iter < max_iters && l2_norm > stop_at)
 	{
@@ -67,7 +54,7 @@ int main() {
 		auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
 		auto system = std::make_unique<System>(
         std::make_unique<HarmonicOscillator>(omega),
-        std::make_unique<FermionsJastrow>(alpha, beta),
+        std::make_unique<FermionsJastrow>(alpha, (mode == 0 ? beta : betaPJ), mode, numberOfParticles),
         std::make_unique<Metropolis>(std::move(rng)),
         std::move(particles));
 
@@ -85,38 +72,74 @@ int main() {
     	double duration = duration_cast<seconds>(stop - start).count();
 
 		sampler -> setTime(duration);
-    	//sampler -> printOutputToTerminal(*system);
-		double mean_rij;
-		double mean_El;
-		double mean_El_times_rij;
-
-		for (int i = 0; i < nPairs; i++)
+		if(mode == 0)
 		{
-			mean_rij = (sampler -> getrij()).at(i);
+			double mean_rij;
+			double mean_El;
+			double mean_El_times_rij;
+			for (int i = 0; i < nPairs; i++)
+			{
+				mean_rij = (sampler -> getrij()).at(i);
+				mean_El = sampler -> getEnergy();
+				mean_El_times_rij = (sampler -> getEnergyrij()).at(i);
+
+				grad_beta.at(i) = 2 * (mean_El_times_rij - mean_El * mean_rij);
+
+				beta.at(i) -= learning_rate * grad_beta.at(i);
+			}
+
+			l2_norm = 0.0;
+			for (double g : grad_beta)
+			{
+			    l2_norm += g * g;
+			}
+			l2_norm = sqrt(l2_norm);
+
+			std::cout << "Iteration " << iter
+        	  << ", beta = " << beta[0]
+        	  << ", energy = " << mean_El
+        	  << ", grad = " << l2_norm << std::endl;
+
+			iter++;
+		}
+		else
+		{
+			double mean_O;
+			double mean_El_times_O;
+			double mean_El;
+			
+			mean_O = (sampler -> getO()).at(0);
 			mean_El = sampler -> getEnergy();
-			mean_El_times_rij = (sampler -> getEnergyrij()).at(i);
+			mean_El_times_O = (sampler -> getEnergyO()).at(0);
+	
+			grad_betaPJ.at(0) = 2 * (mean_El_times_O - mean_El * mean_O);
+	
+			betaPJ.at(0) -= learning_rate * grad_betaPJ.at(0);
+	
+			l2_norm = 0.0;
+			for (double g : grad_betaPJ)
+			{
+			    l2_norm += g * g;
+			}
+			l2_norm = sqrt(l2_norm);
 
-			grad_beta.at(i) = 2 * (mean_El_times_rij - mean_El * mean_rij);
+			std::cout << "Iteration " << iter
+        	  << ", beta = " << betaPJ[0]
+        	  << ", energy = " << mean_El
+        	  << ", grad = " << l2_norm << std::endl;
 
-			beta.at(i) -= learning_rate * grad_beta.at(i);
+			iter++;
 		}
-
-		l2_norm = 0.0;
-		for (double g : grad_beta)
-		{
-		    l2_norm += g * g;
-		}
-		l2_norm = sqrt(l2_norm);
-
-		std::cout << "Iteration " << iter
-          << ", beta = " << beta[0]
-          << ", energy = " << mean_El
-          << ", grad = " << l2_norm << std::endl;
-
-
-		iter++;
 	}
-	//for(int i = 0; i < nPairs; i++) std::cout << beta[i] << std::endl;
+
+	if (mode == 0)
+	{
+	    for (double b : beta) std::cout << b << std::endl;
+	}
+	else
+	{
+	    for (double x : betaPJ) std::cout << x << std::endl;
+	}
 
     return 0;
 }

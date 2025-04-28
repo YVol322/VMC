@@ -11,7 +11,7 @@ using autodiff::MatrixXvar;
 
 class FermionsJastrowNumerical : public WaveFunction {
 public:
-    FermionsJastrowNumerical(double alpha, std::vector<double> beta);
+    FermionsJastrowNumerical(double alpha, std::vector<double> beta, int mode, int n_particles);
     
     double evaluate(std::vector<std::unique_ptr<class Particle>>& particles);
     double computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles);
@@ -48,4 +48,7 @@ public:
     double LaplacianPsi1OverPsi1(VectorXvar& x);
     double LaplacianJOverJ(VectorXvar& x);
 
+    var PadeJastrow(const VectorXvar& x);
+    VectorXvar GradiPadeJastrow(VectorXvar& x, int idx);
+    var LapliPadeJastrow(VectorXvar& x, int idx);
 };
