@@ -763,3 +763,5 @@ double FermionsJastrow::r_ij(std::vector<std::unique_ptr<class Particle>>& parti
 
     return r_ij;
 }
+
+

@@ -6,6 +6,8 @@
 #include "system.h"
 #include "WaveFunctions/fermionsjastrownumerical.h"
 #include "WaveFunctions/fermionsjastrow.h"
+#include "WaveFunctions/boson.h"
+#include "WaveFunctions/bosonnumerical.h"
 #include "Hamiltonians/harmonicoscillator.h"
 #include "InitialStates/initialstate.h"
 #include "Solvers/metropolis.h"
@@ -24,8 +26,8 @@ int main() {
     int seed = 2025;
 
     unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 12;
-	int mode = 0;
+    unsigned int numberOfParticles = 6;
+	int mode = 1;
     unsigned int numberOfMetropolisSteps = (unsigned int) 1e3;
     unsigned int numberOfEquilibrationSteps = (unsigned int) 1e2;
 
@@ -33,14 +35,14 @@ int main() {
     double alpha = 0.5;
 
 	int nPairs = numberOfParticles * (numberOfParticles - 1) / 2;
-    std::vector<double> beta(nPairs, 0.1);
-	std::vector<double> betaPJ(1, 0.48);
+    std::vector<double> beta(nPairs, 0.3);
+	std::vector<double> betaPJ(1, 0.446563);
 
 
     double stepLength = 1;
 
 	double learning_rate = 1e-2;
-	double stop_at = 0.25;
+	double stop_at = 1e-2;
 	double max_iters = 1000;
 	double iter = 0;
     std::vector<double> grad_beta(nPairs, 1);
@@ -54,7 +56,8 @@ int main() {
 		auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
 		auto system = std::make_unique<System>(
         std::make_unique<HarmonicOscillator>(omega),
-        std::make_unique<FermionsJastrow>(alpha, (mode == 0 ? beta : betaPJ), mode, numberOfParticles),
+        //std::make_unique<FermionsJastrow>(alpha, (mode == 0 ? beta : betaPJ), mode, numberOfParticles),
+		std::make_unique<BosonNumerical>(alpha, betaPJ, mode, numberOfParticles),
         std::make_unique<Metropolis>(std::move(rng)),
         std::move(particles));
 
