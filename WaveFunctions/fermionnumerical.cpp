@@ -1,12 +1,11 @@
 #include <cmath>
-//#include <armadillo>
 #include <Eigen/Dense>
 #include <iostream>
 
 
-#include "fermionsjastrownumerical.h"
+#include "fermionnumerical.h"
 
-FermionsJastrowNumerical::FermionsJastrowNumerical(double alpha, std::vector<double>beta, int mode, int n_particles)
+FermionNumerical::FermionNumerical(double alpha, std::vector<double>beta, int mode, int n_particles)
 {
     assert(alpha >= 0);
     int n_betas = beta.size();
@@ -25,7 +24,7 @@ FermionsJastrowNumerical::FermionsJastrowNumerical(double alpha, std::vector<dou
     m_mode = mode;
 }
 
-VectorXvar FermionsJastrowNumerical::fill_x(std::vector<std::unique_ptr<class Particle>>& particles)
+VectorXvar FermionNumerical::fill_x(std::vector<std::unique_ptr<class Particle>>& particles)
 {
     int n_particles = particles.size();
     int n_dimensions = particles[0] -> getNumberOfDimensions();
@@ -41,7 +40,7 @@ VectorXvar FermionsJastrowNumerical::fill_x(std::vector<std::unique_ptr<class Pa
     return x;
 }
 
-var FermionsJastrowNumerical::psi1i(VectorXvar& x, int idx)
+var FermionNumerical::psi1i(VectorXvar& x, int idx)
 {
     var alpha = m_parameters.back();
 
@@ -53,7 +52,7 @@ var FermionsJastrowNumerical::psi1i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::psi2i(VectorXvar& x, int idx)
+var FermionNumerical::psi2i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
 
@@ -61,14 +60,14 @@ var FermionsJastrowNumerical::psi2i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::psi3i(VectorXvar& x, int idx)
+var FermionNumerical::psi3i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
 
     return psi1 * x(idx + 1);
 }
 
-var FermionsJastrowNumerical::psi4i(VectorXvar& x, int idx)
+var FermionNumerical::psi4i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
 
@@ -76,7 +75,7 @@ var FermionsJastrowNumerical::psi4i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::psi5i(VectorXvar& x, int idx)
+var FermionNumerical::psi5i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
 
@@ -84,7 +83,7 @@ var FermionsJastrowNumerical::psi5i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::psi6i(VectorXvar& x, int idx)
+var FermionNumerical::psi6i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
 
@@ -92,7 +91,7 @@ var FermionsJastrowNumerical::psi6i(VectorXvar& x, int idx)
 }
 
 
-VectorXvar FermionsJastrowNumerical::GradPsi1i(VectorXvar& x, int idx)
+VectorXvar FermionNumerical::GradPsi1i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
 
@@ -105,7 +104,7 @@ VectorXvar FermionsJastrowNumerical::GradPsi1i(VectorXvar& x, int idx)
     return grad;
 }
 
-VectorXvar FermionsJastrowNumerical::GradPsi2i(VectorXvar& x, int idx)
+VectorXvar FermionNumerical::GradPsi2i(VectorXvar& x, int idx)
 {
     var psi2 = psi2i(x, idx);
 
@@ -119,7 +118,7 @@ VectorXvar FermionsJastrowNumerical::GradPsi2i(VectorXvar& x, int idx)
 }
 
 
-VectorXvar FermionsJastrowNumerical::GradPsi3i(VectorXvar& x, int idx)
+VectorXvar FermionNumerical::GradPsi3i(VectorXvar& x, int idx)
 {
     var psi3 = psi3i(x, idx);
 
@@ -133,7 +132,7 @@ VectorXvar FermionsJastrowNumerical::GradPsi3i(VectorXvar& x, int idx)
 }
 
 
-VectorXvar FermionsJastrowNumerical::GradPsi4i(VectorXvar& x, int idx)
+VectorXvar FermionNumerical::GradPsi4i(VectorXvar& x, int idx)
 {
     var psi4 = psi4i(x, idx);
 
@@ -147,7 +146,7 @@ VectorXvar FermionsJastrowNumerical::GradPsi4i(VectorXvar& x, int idx)
 }
 
 
-VectorXvar FermionsJastrowNumerical::GradPsi5i(VectorXvar& x, int idx)
+VectorXvar FermionNumerical::GradPsi5i(VectorXvar& x, int idx)
 {
     var psi5 = psi5i(x, idx);
 
@@ -161,7 +160,7 @@ VectorXvar FermionsJastrowNumerical::GradPsi5i(VectorXvar& x, int idx)
 }
 
 
-VectorXvar FermionsJastrowNumerical::GradPsi6i(VectorXvar& x, int idx)
+VectorXvar FermionNumerical::GradPsi6i(VectorXvar& x, int idx)
 {
     var psi6 = psi6i(x, idx);
 
@@ -175,7 +174,7 @@ VectorXvar FermionsJastrowNumerical::GradPsi6i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::LaplPsi1i(VectorXvar& x, int idx)
+var FermionNumerical::LaplPsi1i(VectorXvar& x, int idx)
 {
     var psi1 = psi1i(x, idx);
 
@@ -188,7 +187,7 @@ var FermionsJastrowNumerical::LaplPsi1i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::LaplPsi2i(VectorXvar& x, int idx)
+var FermionNumerical::LaplPsi2i(VectorXvar& x, int idx)
 {
     var psi2 = psi2i(x, idx);
 
@@ -201,7 +200,7 @@ var FermionsJastrowNumerical::LaplPsi2i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::LaplPsi3i(VectorXvar& x, int idx)
+var FermionNumerical::LaplPsi3i(VectorXvar& x, int idx)
 {
     var psi3 = psi3i(x, idx);
 
@@ -214,7 +213,7 @@ var FermionsJastrowNumerical::LaplPsi3i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::LaplPsi4i(VectorXvar& x, int idx)
+var FermionNumerical::LaplPsi4i(VectorXvar& x, int idx)
 {
     var psi4 = psi4i(x, idx);
 
@@ -227,7 +226,7 @@ var FermionsJastrowNumerical::LaplPsi4i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::LaplPsi5i(VectorXvar& x, int idx)
+var FermionNumerical::LaplPsi5i(VectorXvar& x, int idx)
 {
     var psi5 = psi5i(x, idx);
 
@@ -240,7 +239,7 @@ var FermionsJastrowNumerical::LaplPsi5i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::LaplPsi6i(VectorXvar& x, int idx)
+var FermionNumerical::LaplPsi6i(VectorXvar& x, int idx)
 {
     var psi6 = psi6i(x, idx);
 
@@ -253,7 +252,7 @@ var FermionsJastrowNumerical::LaplPsi6i(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::Jastrow(const VectorXvar& x)
+var FermionNumerical::Jastrow(const VectorXvar& x)
 {
     int N = m_particles;
     var sum = 0.0;
@@ -277,7 +276,7 @@ var FermionsJastrowNumerical::Jastrow(const VectorXvar& x)
 }
 
 
-VectorXvar FermionsJastrowNumerical::GradiJastrow(VectorXvar& x, int idx)
+VectorXvar FermionNumerical::GradiJastrow(VectorXvar& x, int idx)
 {
     auto wrapped_Jastrow = [&](const VectorXvar& x_) {
         return Jastrow(x_);
@@ -294,7 +293,7 @@ VectorXvar FermionsJastrowNumerical::GradiJastrow(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::LapliJastrow(VectorXvar& x, int idx)
+var FermionNumerical::LapliJastrow(VectorXvar& x, int idx)
 {
     // Wrap Jastrow in a lambda for autodiff
     auto wrapped_Jastrow = [&](const VectorXvar& x_) {
@@ -314,7 +313,7 @@ var FermionsJastrowNumerical::LapliJastrow(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::PadeJastrow(const VectorXvar& x)
+var FermionNumerical::PadeJastrow(const VectorXvar& x)
 {
     int N = m_particles;
     var sum = 0.0;
@@ -347,7 +346,7 @@ var FermionsJastrowNumerical::PadeJastrow(const VectorXvar& x)
 }
 
 
-VectorXvar FermionsJastrowNumerical::GradiPadeJastrow(VectorXvar& x, int idx)
+VectorXvar FermionNumerical::GradiPadeJastrow(VectorXvar& x, int idx)
 {
     auto wrapped_PadeJastrow = [&](const VectorXvar& x_)
     {
@@ -365,7 +364,7 @@ VectorXvar FermionsJastrowNumerical::GradiPadeJastrow(VectorXvar& x, int idx)
 }
 
 
-var FermionsJastrowNumerical::LapliPadeJastrow(VectorXvar& x, int idx)
+var FermionNumerical::LapliPadeJastrow(VectorXvar& x, int idx)
 {
     // Wrap Jastrow in a lambda for autodiff
     auto wrapped_PadeJastrow = [&](const VectorXvar& x_)
@@ -386,7 +385,7 @@ var FermionsJastrowNumerical::LapliPadeJastrow(VectorXvar& x, int idx)
 }
 
 
-double FermionsJastrowNumerical::SD(VectorXvar& x, int particles, int row_changed, int der_order, int grad_comp)
+double FermionNumerical::SD(VectorXvar& x, int particles, int row_changed, int der_order, int grad_comp)
 {
     int N = m_particles;
 
@@ -512,7 +511,7 @@ double FermionsJastrowNumerical::SD(VectorXvar& x, int particles, int row_change
 }
 
 
-double FermionsJastrowNumerical::GradPsi1GradJOverPsi(VectorXvar& x)
+double FermionNumerical::GradPsi1GradJOverPsi(VectorXvar& x)
 {
     double sum = 0.0;
 
@@ -557,7 +556,7 @@ double FermionsJastrowNumerical::GradPsi1GradJOverPsi(VectorXvar& x)
 }
 
 
-double FermionsJastrowNumerical::LaplacianPsi1OverPsi1(VectorXvar& x)
+double FermionNumerical::LaplacianPsi1OverPsi1(VectorXvar& x)
 {
     double sum = 0.0;
 
@@ -583,7 +582,7 @@ double FermionsJastrowNumerical::LaplacianPsi1OverPsi1(VectorXvar& x)
 }
 
 
-double FermionsJastrowNumerical::LaplacianJOverJ(VectorXvar& x)
+double FermionNumerical::LaplacianJOverJ(VectorXvar& x)
 {
     double J;
     if(m_mode == 0) J = val(Jastrow(x));
@@ -614,7 +613,7 @@ double FermionsJastrowNumerical::LaplacianJOverJ(VectorXvar& x)
 }
 
 
-double FermionsJastrowNumerical::evaluate(std::vector<std::unique_ptr<class Particle>>& particles)
+double FermionNumerical::evaluate(std::vector<std::unique_ptr<class Particle>>& particles)
 {
     VectorXvar x = fill_x(particles);
 
@@ -630,7 +629,7 @@ double FermionsJastrowNumerical::evaluate(std::vector<std::unique_ptr<class Part
 
 
 
-double FermionsJastrowNumerical::computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles)
+double FermionNumerical::computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles)
 {
     VectorXvar x = fill_x(particles);
 
@@ -643,7 +642,7 @@ double FermionsJastrowNumerical::computeDoubleDerivative(std::vector<std::unique
     return result;
 }
 
-double FermionsJastrowNumerical::r_squared(std::vector<std::unique_ptr<class Particle>>& particles, int part_index)
+double FermionNumerical::r_squared(std::vector<std::unique_ptr<class Particle>>& particles, int part_index)
 {
     Particle particle_i = *(particles.at(part_index));
     int n_dimensions = particle_i.getNumberOfDimensions();
@@ -659,7 +658,7 @@ double FermionsJastrowNumerical::r_squared(std::vector<std::unique_ptr<class Par
     return r2;
 }
 
-double FermionsJastrowNumerical::r_ij(std::vector<std::unique_ptr<class Particle>>& particles, int i, int j)
+double FermionNumerical::r_ij(std::vector<std::unique_ptr<class Particle>>& particles, int i, int j)
 {
     Particle& pi = *(particles.at(i));
     Particle& pj = *(particles.at(j));

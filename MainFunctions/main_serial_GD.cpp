@@ -4,8 +4,8 @@
 #include <chrono>
 
 #include "system.h"
-#include "WaveFunctions/fermionsjastrownumerical.h"
-#include "WaveFunctions/fermionsjastrow.h"
+#include "WaveFunctions/fermionnumerical.h"
+#include "WaveFunctions/fermion.h"
 #include "WaveFunctions/boson.h"
 #include "WaveFunctions/bosonnumerical.h"
 #include "Hamiltonians/harmonicoscillator.h"
@@ -21,33 +21,31 @@ using namespace std;
 using namespace std::chrono;
 
 
-int main() {
-    
+int main()
+{    
     int seed = 2025;
 
     unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 6;
-	int mode = 1;
-    unsigned int numberOfMetropolisSteps = (unsigned int) 1e3;
-    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e2;
+    unsigned int numberOfParticles = 2;
+    unsigned int numberOfMetropolisSteps = (unsigned int) 1e5;
+    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e4;
 
     double omega = 1.0;
     double alpha = 0.5;
 
-	int nPairs = numberOfParticles * (numberOfParticles - 1) / 2;
-    std::vector<double> beta(nPairs, 0.3);
-	std::vector<double> betaPJ(1, 0.446563);
+	int mode = 0;
 
-
-    double stepLength = 1;
-
+	double stepLength = 1;
 	double learning_rate = 1e-2;
 	double stop_at = 1e-2;
 	double max_iters = 1000;
 	double iter = 0;
-    std::vector<double> grad_beta(nPairs, 1);
 	double l2_norm = 4.1;
 
+	int numberOfPairs = numberOfParticles * (numberOfParticles - 1) / 2;
+    std::vector<double> beta(numberOfPairs, 0.42);
+	std::vector<double> betaPJ(1, 0.446563);
+    std::vector<double> grad_beta(numberOfPairs, 1);
     std::vector<double> grad_betaPJ(1, 1);
 	
 	while(iter < max_iters && l2_norm > stop_at)
@@ -56,8 +54,8 @@ int main() {
 		auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
 		auto system = std::make_unique<System>(
         std::make_unique<HarmonicOscillator>(omega),
-        //std::make_unique<FermionsJastrow>(alpha, (mode == 0 ? beta : betaPJ), mode, numberOfParticles),
-		std::make_unique<BosonNumerical>(alpha, betaPJ, mode, numberOfParticles),
+        std::make_unique<Fermion>(alpha, (mode == 0 ? beta : betaPJ), mode, numberOfParticles),
+		//std::make_unique<BosonNumerical>(alpha, betaPJ, mode, numberOfParticles),
         std::make_unique<Metropolis>(std::move(rng)),
         std::move(particles));
 
@@ -72,15 +70,15 @@ int main() {
     	        numberOfMetropolisSteps);
     	auto stop = high_resolution_clock::now();
 
-    	double duration = duration_cast<seconds>(stop - start).count();
+    	auto duration = duration_cast<std::chrono::duration<double>>(stop - start);
 
-		sampler -> setTime(duration);
+		sampler -> setTime(duration.count());
 		if(mode == 0)
 		{
 			double mean_rij;
 			double mean_El;
 			double mean_El_times_rij;
-			for (int i = 0; i < nPairs; i++)
+			for (int i = 0; i < numberOfPairs; i++)
 			{
 				mean_rij = (sampler -> getrij()).at(i);
 				mean_El = sampler -> getEnergy();
@@ -104,6 +102,8 @@ int main() {
         	  << ", grad = " << l2_norm << std::endl;
 
 			iter++;
+
+			if(l2_norm < stop_at) sampler -> printOutputToTerminal(*system);
 		}
 		else
 		{
@@ -133,16 +133,18 @@ int main() {
 
 			iter++;
 		}
+
+		if(l2_norm < stop_at) sampler -> printOutputToTerminal(*system);
 	}
 
-	if (mode == 0)
-	{
-	    for (double b : beta) std::cout << b << std::endl;
-	}
-	else
-	{
-	    for (double x : betaPJ) std::cout << x << std::endl;
-	}
+	//if (mode == 0)
+	//{
+	//    for (double b : beta) std::cout << b << std::endl;
+	//}
+	//else
+	//{
+	//    for (double x : betaPJ) std::cout << x << std::endl;
+	//}
 
     return 0;
 }
