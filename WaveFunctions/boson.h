@@ -8,16 +8,15 @@
 class Boson : public WaveFunction
 {
     public:
-
         // Constructor.
         Boson(double alpha, std::vector<double> beta, int mode, int n_particles);
 
         // Boson subclass specific functions.
-        double Phi(std::vector<std::unique_ptr<class Particle>>& particles);
         int BetaIndex(int i, int j);
         double a_ij(int i, int j);
         double Jastrow(std::vector<std::unique_ptr<class Particle>>& particles);
         double PadeJastrow(std::vector<std::unique_ptr<class Particle>>& particles);
+        double Phi(std::vector<std::unique_ptr<class Particle>>& particles);
         std::vector<double> GradiJOverJ(std::vector<std::unique_ptr<class Particle>>& particles, int part_idx);
         std::vector<double> GradiPJOverPJ(std::vector<std::unique_ptr<class Particle>>& particles, int part_idx);
         double LapliJOverJ(std::vector<std::unique_ptr<class Particle>>& particles, int part_idx);

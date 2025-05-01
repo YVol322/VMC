@@ -17,21 +17,6 @@ Boson::Boson(double alpha, std::vector<double> beta, int mode, int n_particles)
 }
 
 
-double Boson::Phi(std::vector<std::unique_ptr<class Particle>>& particles)
-{
-    double alpha = m_parameters.back();
-    int n_particles = m_particles;
-    double argument = 0;
-
-    for(int i = 0; i < n_particles; i++)
-    {
-        argument += r_squared(particles, i);
-    }
-
-    return exp(-alpha * argument);
-}
-
-
 int Boson::BetaIndex(int i, int j)
 {
     int n_particles = m_particles;
@@ -102,6 +87,21 @@ double Boson::PadeJastrow(std::vector<std::unique_ptr<class Particle>>& particle
     }
 
     return exp(sum);
+}
+
+
+double Boson::Phi(std::vector<std::unique_ptr<class Particle>>& particles)
+{
+    double alpha = m_parameters.back();
+    int n_particles = m_particles;
+    double argument = 0;
+
+    for(int i = 0; i < n_particles; i++)
+    {
+        argument += r_squared(particles, i);
+    }
+
+    return exp(-alpha * argument);
 }
 
 
