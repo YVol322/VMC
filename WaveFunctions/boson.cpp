@@ -67,9 +67,9 @@ double Boson::Jastrow(std::vector<std::unique_ptr<class Particle>>& particles)
     double sum = 0.0;
     int n_particles = m_particles;
 
-    for (int i = 0; i < n_particles - 1; ++i)
+    for (int i = 0; i < n_particles - 1; i++)
     {
-        for (int j = i + 1; j < n_particles; ++j)
+        for (int j = i + 1; j < n_particles; j++)
         {
             double rij = r_ij(particles, i, j);
 

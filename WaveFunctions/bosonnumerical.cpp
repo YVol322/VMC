@@ -1,24 +1,19 @@
-#include <cmath>
-#include <iostream>
-
 #include "bosonnumerical.h"
+
 
 BosonNumerical::BosonNumerical(double alpha, std::vector<double> beta, int mode, int n_particles)
 {
     assert(alpha >= 0);
+
     int n_betas = beta.size();
     m_numberOfParameters = n_betas + 1;
-    m_parameters.reserve(m_numberOfParameters);
 
-    for(int i = 0; i < n_betas; i++)
-    {
-        m_parameters.push_back(beta.at(i));
-    }
+    m_parameters.reserve(m_numberOfParameters);
+    m_parameters.insert(m_parameters.end(), beta.begin(), beta.end());
+    m_parameters.push_back(alpha);
 
     m_particles = n_particles;
     m_mode = mode;
-
-    m_parameters.push_back(alpha);
 }
 
 
@@ -30,12 +25,43 @@ VectorXvar BosonNumerical::fill_x(std::vector<std::unique_ptr<class Particle>>& 
     VectorXvar x(n_particles * n_dimensions);
     for(int i = 0; i < n_particles; i++)
     {
+        std::vector<double> ri = particles[i] -> getPosition();
         for(int j = 0; j < n_dimensions; j++)
         {
-            x(i * n_dimensions + j) = particles[i]->getPosition().at(j);
+            x(i * n_dimensions + j) = ri[j];
         }
     }
     return x;
+}
+
+
+int BosonNumerical::BetaIndex(int i, int j)
+{
+    int n_particles = m_particles;
+
+    int ii = std::min(i, j);
+    int jj = std::max(i, j);
+
+    return ii * (2 * n_particles - ii - 1) / 2 + (jj - ii - 1);
+}
+
+
+var BosonNumerical::a_ij(int i, int j)
+{
+    int n_particles = m_particles;
+
+    double aij;
+    
+    if ((i < n_particles / 2 && j >= n_particles / 2) || (i >= n_particles / 2 && j < n_particles / 2))
+    {
+        aij = 1;
+    }
+    else
+    {
+        aij = 1.0 / 3.0;
+    }
+
+    return aij;
 }
 
 
@@ -44,27 +70,27 @@ var BosonNumerical::Jastrow(VectorXvar& x)
     int n_particles = m_particles;
     int n_dimensions = x.size() / n_particles;
 
-    var sum = 0.0;
-    for (int i = 0; i < n_particles - 1; ++i)
+    var sum1 = 0.0;
+    for (int i = 0; i < n_particles - 1; i++)
     {
-        for (int j = i + 1; j < n_particles; ++j)
+        for (int j = i + 1; j < n_particles; j++)
         {
-            var rij2 = 0.0;
+            var sum2 = 0.0;
             for (int d = 0; d < n_dimensions; d++)
             {
                 var delta = x(i * n_dimensions + d) - x(j * n_dimensions + d);
-                rij2 += delta * delta;
+                sum2 += delta * delta;
             }
-            var rij = sqrt(rij2);
+            var rij = sqrt(sum2);
 
-            int idx = i * (2 * n_particles - i - 1) / 2 + (j - i - 1);
-            var beta_ij = m_parameters.at(idx);
+            int idx = BetaIndex(i,j);
+            var beta_ij = m_parameters[idx];
 
-            sum += beta_ij * rij;
+            sum1 += beta_ij * rij;
         }
     }
 
-    return exp(sum);
+    return exp(sum1);
 }
 
 
@@ -72,37 +98,29 @@ var BosonNumerical::PadeJastrow(VectorXvar& x)
 {
     int n_particles = m_particles;
     int n_dimensions = x.size() / n_particles;
-    var sum = 0.0;
 
-    for (int i = 0; i < n_particles - 1; ++i)
+    var beta = m_parameters[0];
+    var sum1 = 0.0;
+    for (int i = 0; i < n_particles - 1; i++)
     {
-        for (int j = i + 1; j < n_particles; ++j)
+        for (int j = i + 1; j < n_particles; j++)
         {
-            var rij2 = 0.0;
+
+            var sum2 = 0.0;
             for (int d = 0; d < n_dimensions; d++)
             {
                 var delta = x(i * n_dimensions + d) - x(j * n_dimensions + d);
-                rij2 += delta * delta;
+                sum2 += delta * delta;
             }
-            var rij = sqrt(rij2);
+            var rij = sqrt(sum2);
 
-            var beta = m_parameters.at(0);
+            var aij = a_ij(i, j);
 
-            var aij;
-            if(i < n_particles/2 && j >= n_particles/2)
-            {
-                aij = 1.0;
-            }
-            else
-            {
-                aij = 1.0/3.0;
-            }
-
-            sum += aij * rij / (1 + beta * rij);
+            sum1 += aij * rij / (1 + beta * rij);
         }
     }
 
-    return exp(sum);
+    return exp(sum1);
 }
 
 
@@ -110,27 +128,24 @@ var BosonNumerical::Phi(VectorXvar& x)
 {
     int n_particles = m_particles;
     int n_dimensions = x.size() / n_particles;
+
     var sum = 0;
     for(int i = 0; i < n_particles; i++)
     {
         for(int j = 0; j < n_dimensions; j++)
         {
-            sum += x(i * n_dimensions + j) * x(i * n_dimensions + j);
+            var pos = x(i * n_dimensions + j);
+            sum += pos * pos;
         }
     }
     var alpha = m_parameters.back();
 
-    sum *= -alpha;
-
-    return exp(sum);
+    return exp(-alpha * sum);
 }
 
 
 VectorXvar BosonNumerical::dJdxi(VectorXvar& x)
 {
-    int n_particles = m_particles;
-    int n_dimensions = x.size() / n_particles;
-
     var J = (m_mode == 0) ? Jastrow(x) : PadeJastrow(x);
     VectorXvar dJ = gradient(J, x);
 
@@ -140,9 +155,6 @@ VectorXvar BosonNumerical::dJdxi(VectorXvar& x)
 
 VectorXvar BosonNumerical::dPhidxi(VectorXvar& x)
 {
-    int n_particles = m_particles;
-    int n_dimensions = x.size() / n_particles;
-
     var phi = Phi(x);
     VectorXvar dPhi = gradient(phi, x);
 
@@ -152,10 +164,10 @@ VectorXvar BosonNumerical::dPhidxi(VectorXvar& x)
 
 VectorXvar BosonNumerical::d2Phidxi2(VectorXvar& x)
 {
-    var u = Phi(x);
+    var phi = Phi(x);
 
     Eigen::VectorXd g;
-    Eigen::MatrixXd H = hessian(u, x, g);
+    Eigen::MatrixXd H = hessian(phi, x, g);
     
     return H.diagonal();
 }
@@ -163,10 +175,10 @@ VectorXvar BosonNumerical::d2Phidxi2(VectorXvar& x)
 
 VectorXvar BosonNumerical::d2Jdxi2(VectorXvar& x)
 {
-    var u = (m_mode == 0) ? Jastrow(x) : PadeJastrow(x);
+    var J = (m_mode == 0) ? Jastrow(x) : PadeJastrow(x);
 
     Eigen::VectorXd g;
-    Eigen::MatrixXd H = hessian(u, x, g);
+    Eigen::MatrixXd H = hessian(J, x, g);
     
     return H.diagonal();
 }
@@ -174,9 +186,7 @@ VectorXvar BosonNumerical::d2Jdxi2(VectorXvar& x)
 
 double BosonNumerical::LaplJOverJ(VectorXvar& x)
 {
-    int n = x.size();
-    VectorXvar d2J(n);
-    d2J = d2Jdxi2(x);
+    VectorXvar d2J = d2Jdxi2(x);
 
     double sum = val(d2J.sum());
 
@@ -188,29 +198,22 @@ double BosonNumerical::LaplJOverJ(VectorXvar& x)
 
 double BosonNumerical::LaplPhiOverPhi(VectorXvar& x)
 {
-    int n = x.size();
-    VectorXvar d2Phi(n);
-    d2Phi = d2Phidxi2(x);
+    VectorXvar d2Phi = d2Phidxi2(x);
 
     double sum = val(d2Phi.sum());
-    double phi = val(Phi(x));
 
-    return sum / phi;
+    return sum / val(Phi(x));
 }
 
 
 double BosonNumerical::GradGrad(VectorXvar& x)
 {
-    int n = x.size();
-    VectorXvar dPhi(n), dJ(n);
-    dPhi = dPhidxi(x);
-    dJ = dJdxi(x);
+    VectorXvar dPhi = dPhidxi(x);
+    VectorXvar dJ = dJdxi(x);
 
-    double phi = val(Phi(x));
     var J = (m_mode == 0) ? Jastrow(x) : PadeJastrow(x);
 
-
-    return 2.0 * val(dJ.dot(dPhi)) / (val(J) * phi);
+    return 2.0 * val(dJ.dot(dPhi)) / (val(J) * val(Phi(x)));
 }
 
 
@@ -219,33 +222,29 @@ double BosonNumerical::evaluate(std::vector<std::unique_ptr<class Particle>>& pa
     VectorXvar x = fill_x(particles);
 
     var J = (m_mode == 0) ? Jastrow(x) : PadeJastrow(x);
-    double phi = val(Phi(x));
 
-    return val(J) * phi;
+    return val(J) * val(Phi(x));
 }
+
 
 double BosonNumerical::computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles)
 {
     VectorXvar x = fill_x(particles);
-    
-    double LaplJ = LaplJOverJ(x);
-    double LaplPhi = LaplPhiOverPhi(x);
-    double gradgrad = GradGrad(x);
 
-    return LaplJ + gradgrad + LaplPhi;
+    return LaplJOverJ(x) + LaplPhiOverPhi(x) + GradGrad(x);
 }
 
 
-double BosonNumerical::r_squared(std::vector<std::unique_ptr<class Particle>>& particles, int part_index)
+double BosonNumerical::r_squared(std::vector<std::unique_ptr<class Particle>>& particles, int part_idx)
 {
-    Particle& particle_i = *(particles.at(part_index));
+    Particle& particle_i = *(particles[part_idx]);
     int n_dimensions = particle_i.getNumberOfDimensions();
     double coordinate;
     double r2 = 0;
 
     for(int i = 0; i < n_dimensions; i++)
     {
-        coordinate = particle_i.getPosition().at(i);
+        coordinate = particle_i.getPosition()[i];
         r2 += coordinate * coordinate;
     }
 
@@ -255,15 +254,15 @@ double BosonNumerical::r_squared(std::vector<std::unique_ptr<class Particle>>& p
 
 double BosonNumerical::r_ij(std::vector<std::unique_ptr<class Particle>>& particles, int i, int j)
 {
-    Particle& pi = *(particles.at(i));
-    Particle& pj = *(particles.at(j));
+    Particle& pi = *(particles[i]);
+    Particle& pj = *(particles[j]);
 
     int n_dimensions = pi.getNumberOfDimensions();
 
     double rij = 0;
     for(int d = 0; d < n_dimensions; d++)
     {
-        rij += (pi.getPosition().at(d) - pj.getPosition().at(d)) * (pi.getPosition().at(d) - pj.getPosition().at(d));
+        rij += (pi.getPosition()[d] - pj.getPosition()[d]) * (pi.getPosition()[d] - pj.getPosition()[d]);
     }
     
     return sqrt(rij);

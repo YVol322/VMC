@@ -23,17 +23,17 @@ int main(int argc, char** argv) {
     int seed = 2025;
 
     unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 6;
-    unsigned int numberOfMetropolisSteps = (unsigned int) 1e3;
-    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e2;
+    unsigned int numberOfParticles = 12;
+    unsigned int numberOfMetropolisSteps = (unsigned int) 1e4;
+    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e3;
 
     double omega = 1.0;
     double alpha = 0.5;
 
 	int mode = 1;
 
-	double stepLength = 1;
-	double learning_rate = 1e-3;
+	double stepLength = 0.5;
+	double learning_rate = 1e-5;
 	double stop_at = 1e-1;
 	double max_iters = 1000;
 	double iter = 0;
