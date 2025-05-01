@@ -23,25 +23,25 @@ int main(int argc, char** argv) {
     int seed = 2025;
 
     unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 2;
-    unsigned int numberOfMetropolisSteps = (unsigned int) 1e5;
-    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e4;
+    unsigned int numberOfParticles = 6;
+    unsigned int numberOfMetropolisSteps = (unsigned int) 1e3;
+    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e2;
 
     double omega = 1.0;
     double alpha = 0.5;
 
-	int mode = 0;
+	int mode = 1;
 
 	double stepLength = 1;
-	double learning_rate = 1e-2;
-	double stop_at = 1e-2;
+	double learning_rate = 1e-3;
+	double stop_at = 1e-1;
 	double max_iters = 1000;
 	double iter = 0;
 	double l2_norm = 4.1;
 
 	int numberOfPairs = numberOfParticles * (numberOfParticles - 1) / 2;
     std::vector<double> beta(numberOfPairs, 0.42);
-	std::vector<double> betaPJ(1, 0.446563);
+	std::vector<double> betaPJ(1, 0.4);
     std::vector<double> grad_beta(numberOfPairs, 1);
     std::vector<double> grad_betaPJ(1, 1);
 
@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 
         auto system = std::make_unique<System>(
             std::make_unique<HarmonicOscillator>(omega),
-            std::make_unique<Fermion>(alpha, (mode == 0 ? beta : betaPJ), mode, numberOfParticles),
+            std::make_unique<Boson>(alpha, (mode == 0 ? beta : betaPJ), mode, numberOfParticles),
             std::make_unique<Metropolis>(std::move(rng)),
             std::move(particles)
         );
