@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     int seed = 2025;
 
     unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 2;
+    unsigned int numberOfParticles = 6;
     unsigned int numberOfMetropolisSteps = (unsigned int) 1e3;
     unsigned int numberOfEquilibrationSteps = (unsigned int) 1e2;
 
@@ -32,8 +32,8 @@ int main(int argc, char** argv) {
 
 	int mode = 1;
 
-	double stepLength = 1;
-	double learning_rate = 1e-4;
+	double stepLength = 0.5;
+	double learning_rate = 1e-5;
 	double stop_at = 1e-1;
 	double max_iters = 1000;
 	double iter = 0;
@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
 
 	int numberOfPairs = numberOfParticles * (numberOfParticles - 1) / 2;
     std::vector<double> beta(numberOfPairs, 0.2);
-	std::vector<double> betaPJ(1, 0.44);
+	std::vector<double> betaPJ(1, 0.47);
     std::vector<double> grad_beta(numberOfPairs, 1);
     std::vector<double> grad_betaPJ(1, 1);
 

@@ -12,6 +12,7 @@ using autodiff::var;
 using autodiff::VectorXvar;
 using autodiff::MatrixXvar;
 
+
 class BosonNumerical : public WaveFunction
 {
     public:

@@ -303,11 +303,10 @@ double Fermion::LapliPsi6(std::vector<std::unique_ptr<class Particle>>& particle
 double Fermion::SD
 (std::vector<std::unique_ptr<class Particle>>& particles, int particles_set, int row_changed, int der_order, int grad_comp)
 {
-    int n_particles = m_particles;
-    int size = n_particles / 2;
+    int size = m_particles / 2;
     double det = 0;
 
-    if(n_particles == 6)
+    if(m_particles == 6)
     {
         Eigen::MatrixXd A(size, size);
         for(int i = 0; i < size; i++)
@@ -342,7 +341,7 @@ double Fermion::SD
         }
         det = A.determinant();
     }
-    else if(n_particles == 2)
+    else if(m_particles == 2)
     {
         if(der_order == 0)
         {
@@ -357,7 +356,7 @@ double Fermion::SD
             det = LapliPsi1(particles, particles_set);
         }
     }
-    if(n_particles == 12)
+    if(m_particles == 12)
     {
         Eigen::MatrixXd A(size, size);
         for(int i = 0; i < size; i++)
