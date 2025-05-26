@@ -31,6 +31,7 @@ public:
 
     double computeLocalEnergy();
     double computerij(int i, int j);
+    double computer2();
     const std::vector<double>& getWaveFunctionParameters();
 
 private:

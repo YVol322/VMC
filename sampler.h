@@ -24,10 +24,12 @@ public:
     void setEnergy(double en);
     void setTime(double t);
     double getEnergy() { return m_energy; }
-    std::vector<double> getEnergyrij() { return m_Elrij; }
-    std::vector<double> getrij() { return m_rij; }
-    std::vector<double> getO() { return m_O; }
-    std::vector<double> getEnergyO() { return m_ElO; }
+    double getO1alpha() { return m_O1alpha; }
+    double getO2alpha() { return m_O2alpha; }
+    std::vector<double> getO1Jastow() { return m_O1Jastrow; }
+    std::vector<double> getO2Jastow() { return m_O2Jastrow; }
+    double getO1Pade() { return m_O1Pade; }
+    double getO2Pade() { return m_O2Pade; }
 
 private:
     unsigned int m_stepNumber = 0;
@@ -35,18 +37,30 @@ private:
     unsigned int m_numberOfParticles = 0;
     unsigned int m_numberOfDimensions = 0;
     unsigned int m_numberOfAcceptedSteps = 0;
-    int m_nPairs = 0;
-    double m_energy = 0;
-    double m_cumulativeEnergy = 0;
+
     double m_stepLength = 0;
     double m_time = 0;
-    std::vector<double> m_rij;
-    std::vector<double> m_Elrij;
-    std::vector<double> m_cumulativeEnergyrij;
-    std::vector<double> m_cumulativerij;
+    int m_nPairs = 0;
 
-    std::vector<double> m_O;
-    std::vector<double> m_ElO;
-    std::vector<double> m_cumulativeElO;
-    std::vector<double> m_cumulativeO;
+    double m_energy = 0;
+    double m_cumulativeEnergy = 0;
+
+    double m_O1alpha = 0;
+    double m_cumulativeO1alpha = 0;
+
+    double m_O2alpha = 0;
+    double m_cumulativeO2alpha = 0;
+
+
+    std::vector<double> m_O1Jastrow;
+    std::vector<double> m_cumulativeO1Jastrow;
+
+    std::vector<double> m_O2Jastrow;
+    std::vector<double> m_cumulativeO2Jastrow;
+
+    double m_O1Pade;
+    double m_cumulativeO1Pade = 0;
+
+    double m_O2Pade;
+    double m_cumulativeO2Pade = 0;
 };

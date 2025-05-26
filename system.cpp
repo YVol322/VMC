@@ -70,6 +70,17 @@ double System::computerij(int i, int j)
     return m_waveFunction -> r_ij(m_particles, i, j);
 }
 
+double System::computer2()
+{
+    double r2 = 0;
+    for(int i = 0; i < m_numberOfParticles; i++)
+    {
+        r2 += m_waveFunction -> r_squared(m_particles, i);
+    }
+
+    return r2;
+}
+
 const std::vector<double>& System::getWaveFunctionParameters()
 {
     // Helper function

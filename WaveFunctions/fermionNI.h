@@ -6,15 +6,12 @@
 
 #include "wavefunction.h"
 
-class Fermion : public WaveFunction
+class FermionNI : public WaveFunction
 {
     public:
         // Constructor.
-        Fermion(double alpha, std::vector<double> beta, int mode, int n_particles);
+        FermionNI(double alpha, int n_particles);
     
-        // Fermion subclass specific functions.
-        double Jastrow(std::vector<std::unique_ptr<class Particle>>& particles);
-        double PadeJastrow(std::vector<std::unique_ptr<class Particle>>& particles);
         double Psi1(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx);
         double Psi2(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx);
         double Psi3(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx);
@@ -33,16 +30,11 @@ class Fermion : public WaveFunction
         double LapliPsi4(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx);
         double LapliPsi5(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx);
         double LapliPsi6(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx);
+        double LaplPsiTOverPsiT(std::vector<std::unique_ptr<class Particle>>& particles);
         double SD(std::vector<std::unique_ptr<class Particle>>& particles, int particles_set, int row_changed, int der_order, int grad_comp);
-        std::vector<double> GradiJOverJ(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx);
-        std::vector<double> GradiPJOverPJ(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx);
-        double LapliJOverJ(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx);
-        double LapliPJOverPJ(std::vector<std::unique_ptr<class Particle>>& particles, double part_inx);
-        double LaplPsi1OverPsi1(std::vector<std::unique_ptr<class Particle>>& particles);
-        double GradiPsi1GradiJOverPsi(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx);
 
         // WaveFunction class functions.
+        std::vector<double> quantumForce(std::vector<std::unique_ptr<class Particle>>& particles, int n);
         double evaluate(std::vector<std::unique_ptr<class Particle>>& particles);
         double computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles);
-        std::vector<double> quantumForce(std::vector<std::unique_ptr<class Particle>>& particles, int i);
 };

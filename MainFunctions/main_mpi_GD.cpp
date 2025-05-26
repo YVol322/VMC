@@ -23,35 +23,36 @@ int main(int argc, char** argv) {
     int seed = 2025;
 
     unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 2;
-    unsigned int numberOfMetropolisSteps = (unsigned int) 1e5;
-    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e4;
+    unsigned int numberOfParticles = 12;
+    unsigned int numberOfMetropolisSteps = (unsigned int) 1e3;
+    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e2;
 
     double omega = 1.0;
     double alpha = 0.5;
 
 	int mode = 0;
 
-	double stepLength = 1;
-	double learning_rate = 1e-2;
-	double stop_at = 1e-2;
+	double stepLength = 0.5;
+	double learning_rate = 1e-5;
+	double stop_at = 1e-1;
 	double max_iters = 1000;
 	double iter = 0;
 	double l2_norm = 4.1;
 
 	int numberOfPairs = numberOfParticles * (numberOfParticles - 1) / 2;
-    std::vector<double> beta(numberOfPairs, 0.42);
-	std::vector<double> betaPJ(1, 0.446563);
+    std::vector<double> beta(numberOfPairs, 0.2);
+	std::vector<double> betaPJ(1, 0.47);
     std::vector<double> grad_beta(numberOfPairs, 1);
     std::vector<double> grad_betaPJ(1, 1);
 
-    int size, my_rank;
     double energy;
-    double O;
-    double energyO;
-    std::vector<double> rij(numberOfPairs, 0);
-    std::vector<double> Erij(numberOfPairs, 0);
 
+    double O1Pade;
+    double O2Pade;
+    std::vector<double> O1Jastrow(numberOfPairs, 0);
+    std::vector<double> O2Jastrow(numberOfPairs, 0);
+
+    int size, my_rank;
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
@@ -60,7 +61,6 @@ int main(int argc, char** argv) {
 
     while(iter < max_iters && l2_norm > stop_at)
     {
-        // Initialize random engine for each process
         auto rng = std::make_unique<Random>(seed);
         auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
 
@@ -87,64 +87,67 @@ int main(int argc, char** argv) {
 
         energy = sampler->getEnergy();
         double *all_energies = nullptr;
-        if (my_rank == 0) {
-            // Root process allocates space to store all energies
+        if (my_rank == 0)
+        {
             all_energies = new double[size];
         }
 
         MPI_Gather(&energy, 1, MPI_DOUBLE, all_energies, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-        if (my_rank == 0) {
+        if (my_rank == 0)
+        {
             double sum_energy = 0.0;
-            for (int i = 0; i < size; ++i) {
+
+            for (int i = 0; i < size; ++i)
+            {
                 sum_energy += all_energies[i];
             }
+
             double mean_energy = sum_energy / size;
-            sampler->setEnergy(mean_energy);
-            sampler->setTime(duration.count());
+            sampler -> setEnergy(mean_energy);
+            sampler -> setTime(duration.count());
         }
 
-        // Mode 0 for beta gradients
         if (mode == 0)
         {
-            rij = sampler->getrij();
-            Erij = sampler->getEnergyrij();
+            O1Jastrow = sampler -> getO1Jastow();
+            O2Jastrow = sampler -> getO2Jastow();
 
-            // Allocate memory for all processes to send their data
-            double *all_rijs = nullptr;
-            double *all_energyrijs = nullptr;
-            if (my_rank == 0) {
-                // Root process allocates space to store all rijs and energyrijs
-                all_rijs = new double[size * rij.size()];
-                all_energyrijs = new double[size * Erij.size()];
+
+            double *all_O1Js = nullptr;
+            double *all_O2Js = nullptr;
+            if (my_rank == 0)
+            {
+                all_O1Js = new double[size * O1Jastrow.size()];
+                all_O2Js = new double[size * O2Jastrow.size()];
             }
 
-            // Gather rij and Erij from all processes to the root process
-            MPI_Gather(rij.data(), rij.size(), MPI_DOUBLE, all_rijs, rij.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            MPI_Gather(Erij.data(), Erij.size(), MPI_DOUBLE, all_energyrijs, Erij.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            MPI_Gather(O1Jastrow.data(), O1Jastrow.size(), MPI_DOUBLE, all_O1Js, O1Jastrow.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            MPI_Gather(O2Jastrow.data(), O2Jastrow.size(), MPI_DOUBLE, all_O2Js, O2Jastrow.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-            if (my_rank == 0) {
-                double sum_rij = 0.0;
-                double sum_El_rij = 0.0;
-                // Compute averages for rijs and energyrijs
-                for (int i = 0; i < size; ++i) {
-                    sum_rij += all_rijs[i];  // Add all rijs for this pair across all processes
-                    sum_El_rij += all_energyrijs[i];  // Add all Erij for this pair across all processes
+            if (my_rank == 0)
+            {
+                double sum_O1J = 0.0;
+                double sum_O2J = 0.0;
+
+                for (int i = 0; i < size; ++i)
+                {
+                    sum_O1J += all_O1Js[i];
+                    sum_O2J += all_O2Js[i];
                 }
 
-                // Compute means for all rijs and energyrijs
-                double mean_rij = sum_rij / size;
-                double mean_El_rij = sum_El_rij / size;
+                double mean_O1 = sum_O1J / size;
+                double mean_O2 = sum_O2J / size;
 
-                // Update gradients
-                for (int i = 0; i < numberOfPairs; ++i) {
-                    grad_beta[i] = 2 * (mean_El_rij - energy * mean_rij);
+                for (int i = 0; i < numberOfPairs; ++i)
+                {
+                    grad_beta[i] = 2 * (mean_O2 - energy * mean_O1);
                     beta[i] -= learning_rate * grad_beta[i];
                 }
 
-                // Compute L2 norm
                 l2_norm = 0.0;
-                for (double g : grad_beta) {
+                for (double g : grad_beta)
+                {
                     l2_norm += g * g;
                 }
                 l2_norm = sqrt(l2_norm);
@@ -156,51 +159,45 @@ int main(int argc, char** argv) {
 
                 iter++;
 
-                delete[] all_rijs;
-                delete[] all_energyrijs;
+                delete[] all_O1Js;
+                delete[] all_O2Js;
             }
-            if(l2_norm < stop_at) sampler -> printOutputToTerminal(*system);
+
+            MPI_Bcast(&l2_norm, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            if(l2_norm < stop_at && my_rank == 0) sampler -> printOutputToTerminal(*system);
         }
         else
         {
-            // Mode 1 for updating betaPJ
-            O = sampler->getO().at(0);
-            energyO = sampler->getEnergyO().at(0);
+            O1Pade = sampler -> getO1Pade();
+            O2Pade = sampler -> getO2Pade();
 
-            // Allocate memory for all processes to send their data
-            double *all_Os = nullptr;
-            double *all_energyOs = nullptr;
+            double *all_O1Ps = nullptr;
+            double *all_O2Ps = nullptr;
             if (my_rank == 0)
             {
-                // Root process allocates space to store all Os and energyOs
-                all_Os = new double[size];
-                all_energyOs = new double[size];
+                all_O1Ps = new double[size];
+                all_O2Ps = new double[size];
             }
 
-            // Gather O and energyO from all processes to the root process
-            MPI_Gather(&O, 1, MPI_DOUBLE, all_Os, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            MPI_Gather(&energyO, 1, MPI_DOUBLE, all_energyOs, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            MPI_Gather(&O1Pade, 1, MPI_DOUBLE, all_O1Ps, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            MPI_Gather(&O2Pade, 1, MPI_DOUBLE, all_O2Ps, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
             if (my_rank == 0)
             {
-                double sum_O = 0.0;
-                double sum_energyO = 0.0;
-                // Compute averages for O and energyO
+                double sum_O1P = 0.0;
+                double sum_O2P = 0.0;
                 for (int i = 0; i < size; ++i)
                 {
-                    sum_O += all_Os[i];  // Add all O values across all processes
-                    sum_energyO += all_energyOs[i];  // Add all energyO values across all processes
+                    sum_O1P += all_O1Ps[i];
+                    sum_O2P += all_O2Ps[i];
                 }
 
-                // Compute means for O and energyO
-                double mean_O = sum_O / size;
-                double mean_energyO = sum_energyO / size;
+                double mean_O1P = sum_O1P / size;
+                double mean_O2P = sum_O2P / size;
 
-                // Update grad_betaPJ
-                grad_betaPJ[0] = 2 * (mean_energyO - energy * mean_O);
+                grad_betaPJ[0] = 2 * (mean_O2P - energy * mean_O1P);
                 betaPJ[0] -= learning_rate * grad_betaPJ[0];
 
-                // Compute L2 norm for grad_betaPJ
                 l2_norm = 0.0;
                 for (double g : grad_betaPJ)
                 {
@@ -215,11 +212,13 @@ int main(int argc, char** argv) {
 
                 iter++;
 
-                delete[] all_Os;
-                delete[] all_energyOs;
+                delete[] all_O1Ps;
+                delete[] all_O2Ps;
             }
+
+            MPI_Bcast(&l2_norm, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
         }
-        if(l2_norm < stop_at) sampler -> printOutputToTerminal(*system);
+        if(l2_norm < stop_at && my_rank == 0) sampler -> printOutputToTerminal(*system);
     }
 
     MPI_Finalize();

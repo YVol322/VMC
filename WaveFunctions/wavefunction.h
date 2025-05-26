@@ -16,10 +16,17 @@ class WaveFunction
     
         int getNumberOfParameters() { return m_numberOfParameters; }
         const std::vector<double>& getParameters() { return m_parameters; }
-        virtual double r_squared(std::vector<std::unique_ptr<class Particle>>& particles, int part_index) = 0;
-        virtual double r_ij(std::vector<std::unique_ptr<class Particle>>& particles, int i, int j) = 0;
+
+        double r_squared(std::vector<std::unique_ptr<class Particle>>& particles, int part_index);
+        double r_ij(std::vector<std::unique_ptr<class Particle>>& particles, int i, int j);
+        int BetaIndex(int i, int j);
+        double a_ij(int i, int j);
+        double GreensFunctionRatio(std::vector<double>& Rnew, std::vector<double>& Rold, 
+                                    double dt, std::vector<double>& Fold, std::vector<double>& Fnew);
+
         virtual double evaluate(std::vector<std::unique_ptr<class Particle>>& particles) = 0;
         virtual double computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles) = 0;
+        virtual std::vector<double> quantumForce(std::vector<std::unique_ptr<class Particle>>& particles, int i) = 0;
     
     protected:
         int m_numberOfParameters = 0;
