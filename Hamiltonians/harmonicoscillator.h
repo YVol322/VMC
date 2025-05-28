@@ -5,7 +5,7 @@
 class HarmonicOscillator : public Hamiltonian
 {
     public:
-        HarmonicOscillator(double omega);
+        HarmonicOscillator(double omega, bool Coulomb);
         double computeLocalEnergy(
             class WaveFunction& waveFunction,
             std::vector<std::unique_ptr<class Particle>>& particles
@@ -13,4 +13,5 @@ class HarmonicOscillator : public Hamiltonian
 
     private:
         double m_omega;
+        bool m_Coulomb;
 };

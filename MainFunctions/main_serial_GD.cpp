@@ -11,6 +11,7 @@
 #include "Hamiltonians/harmonicoscillator.h"
 #include "InitialStates/initialstate.h"
 #include "Solvers/metropolis.h"
+#include "Solvers/metropolishastings.h"
 #include "Math/random.h"
 #include "particle.h"
 #include "sampler.h"
@@ -26,24 +27,24 @@ int main()
     int seed = 2025;
 
     unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 2;
-    unsigned int numberOfMetropolisSteps = (unsigned int) 1e5;
-    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e4;
+    unsigned int numberOfParticles = 12;
+    unsigned int numberOfMetropolisSteps = (unsigned int) 1e2;
+    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e1;
 
     double omega = 1.0;
     double alpha = 0.5;
 
-	int mode = 0;
+	int mode = 1;
 
-	double stepLength = 1;
-	double learning_rate = 1e-2;
+	double stepLength = 1e-3;
+	double learning_rate = 1e-3;
 	double stop_at = 1e-2;
 	double max_iters = 1000;
 	double iter = 0;
 	double l2_norm = 4.1;
 
 	int numberOfPairs = numberOfParticles * (numberOfParticles - 1) / 2;
-    std::vector<double> beta(numberOfPairs, 0.42);
+    std::vector<double> beta(numberOfPairs, 0.3);
 	std::vector<double> betaPJ(1, 0.446563);
     std::vector<double> grad_beta(numberOfPairs, 1);
     std::vector<double> grad_betaPJ(1, 1);
@@ -53,10 +54,10 @@ int main()
 		auto rng = std::make_unique<Random>(seed);
 		auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
 		auto system = std::make_unique<System>(
-        std::make_unique<HarmonicOscillator>(omega),
-        std::make_unique<Fermion>(alpha, (mode == 0 ? beta : betaPJ), mode, numberOfParticles),
+        std::make_unique<HarmonicOscillator>(omega, 1),
+        std::make_unique<FermionNumerical>(alpha, (mode == 0 ? beta : betaPJ), mode, numberOfParticles),
 		//std::make_unique<BosonNumerical>(alpha, betaPJ, mode, numberOfParticles),
-        std::make_unique<Metropolis>(std::move(rng)),
+        std::make_unique<MetropolisHastings>(std::move(rng)),
         std::move(particles));
 
 
@@ -75,18 +76,14 @@ int main()
 		sampler -> setTime(duration.count());
 		if(mode == 0)
 		{
-			double mean_rij;
-			double mean_El;
-			double mean_El_times_rij;
+			double El = sampler -> getEnergy();
+			std::vector<double> O1 = sampler -> getO1Jastow();
+			std::vector<double> O2 = sampler -> getO2Jastow();
 			for (int i = 0; i < numberOfPairs; i++)
 			{
-				mean_rij = (sampler -> getrij()).at(i);
-				mean_El = sampler -> getEnergy();
-				mean_El_times_rij = (sampler -> getEnergyrij()).at(i);
+				grad_beta[i]= 2 * (O2[i] - O1[i] * El);
 
-				grad_beta.at(i) = 2 * (mean_El_times_rij - mean_El * mean_rij);
-
-				beta.at(i) -= learning_rate * grad_beta.at(i);
+				beta[i] -= learning_rate * grad_beta[i];
 			}
 
 			l2_norm = 0.0;
@@ -98,26 +95,26 @@ int main()
 
 			std::cout << "Iteration " << iter
         	  << ", beta = " << beta[0]
-        	  << ", energy = " << mean_El
+        	  << ", energy = " << El
         	  << ", grad = " << l2_norm << std::endl;
 
 			iter++;
 
-			if(l2_norm < stop_at) sampler -> printOutputToTerminal(*system);
+			if(l2_norm < stop_at)
+			{
+				sampler -> printOutputToTerminal(*system);
+				return 0;
+			}
 		}
 		else
 		{
-			double mean_O;
-			double mean_El_times_O;
-			double mean_El;
-			
-			mean_O = (sampler -> getO()).at(0);
-			mean_El = sampler -> getEnergy();
-			mean_El_times_O = (sampler -> getEnergyO()).at(0);
+			double El = sampler -> getEnergy();
+			double O1 = sampler -> getO1Pade();
+			double O2 = sampler -> getO2Pade();
 	
-			grad_betaPJ.at(0) = 2 * (mean_El_times_O - mean_El * mean_O);
+			grad_betaPJ[0] = 2 * (O2 - El * O1);
 	
-			betaPJ.at(0) -= learning_rate * grad_betaPJ.at(0);
+			betaPJ[0] -= learning_rate * grad_betaPJ[0];
 	
 			l2_norm = 0.0;
 			for (double g : grad_betaPJ)
@@ -128,7 +125,7 @@ int main()
 
 			std::cout << "Iteration " << iter
         	  << ", beta = " << betaPJ[0]
-        	  << ", energy = " << mean_El
+        	  << ", energy = " << El
         	  << ", grad = " << l2_norm << std::endl;
 
 			iter++;

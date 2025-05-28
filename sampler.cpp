@@ -49,7 +49,7 @@ void Sampler::sample(bool acceptedStep, System* system)
     auto localEnergy = system->computeLocalEnergy();
     m_cumulativeEnergy  += localEnergy;
 
-    double r2 = system ->computer2();
+    double r2 = system -> computer2();
     m_cumulativeO1alpha += r2;
     m_cumulativeO2alpha += r2 * localEnergy;
 

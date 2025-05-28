@@ -583,5 +583,28 @@ double FermionNumerical::computeDoubleDerivative(std::vector<std::unique_ptr<cla
 
 std::vector<double> FermionNumerical::quantumForce(std::vector<std::unique_ptr<class Particle>>& particles, int i)
 {
-    return {0,0};
+    VectorXvar x = fill_x(particles);
+
+    int half      = m_particles/2;
+    int spinBlock = (i < half ? 0 : 1);
+    int localIdx  = (i < half ? i : i - half);
+
+    double D_block = SD(x, spinBlock, 0, 0, 0);
+    double dlnD_dx = val( SD(x, spinBlock, localIdx, 1, 0) ) / D_block;
+    double dlnD_dy = val( SD(x, spinBlock, localIdx, 1, 1) ) / D_block;
+
+    VectorXvar gradJ_var;
+    if (m_mode == 0)
+    {
+        gradJ_var = GradiJastrow(x, i*2);
+    } else
+    {
+        gradJ_var = GradiPadeJastrow(x, i*2);
+    }
+
+    var J = (m_mode == 0) ? Jastrow(x) : PadeJastrow(x);
+    double dlnJ_dx = val( gradJ_var(0) ) / val(J);
+    double dlnJ_dy = val( gradJ_var(1) ) / val(J);
+
+    return { 2.0 * (dlnD_dx + dlnJ_dx), 2.0 * (dlnD_dy + dlnJ_dy) };
 }

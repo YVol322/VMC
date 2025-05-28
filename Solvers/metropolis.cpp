@@ -34,8 +34,9 @@ bool Metropolis::step(
 
     WFnew = waveFunction.evaluate(particles);
 
+    double accept = std::min(1.0, (WFnew * WFnew)/(WFold * WFold));
 
-    if(m_rng -> nextDouble() > (WFnew * WFnew)/(WFold * WFold))
+    if(m_rng -> nextDouble() > accept)
     {
         for(int i = 0; i < n_particles; i++)
         {

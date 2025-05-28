@@ -9,7 +9,7 @@ System::System(
         std::unique_ptr<class MonteCarlo> solver,
         std::vector<std::unique_ptr<class Particle>> particles)
 {
-    m_numberOfParticles = particles.size();;
+    m_numberOfParticles = particles.size();
     m_numberOfDimensions = particles[0]->getNumberOfDimensions();
     m_hamiltonian = std::move(hamiltonian);
     m_waveFunction = std::move(waveFunction);

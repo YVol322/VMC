@@ -11,6 +11,7 @@
 #include "Hamiltonians/harmonicoscillator.h"
 #include "InitialStates/initialstate.h"
 #include "Solvers/metropolis.h"
+#include "Solvers/metropolishastings.h"
 #include "Math/random.h"
 #include "particle.h"
 #include "sampler.h"
@@ -24,16 +25,16 @@ int main() {
     int seed = 2025;
 
     unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 2;
-    unsigned int numberOfMetropolisSteps = (unsigned int) 1e5;
-    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e4;
+    unsigned int numberOfParticles = 12;
+    unsigned int numberOfMetropolisSteps = (unsigned int) 1e2;
+    unsigned int numberOfEquilibrationSteps = (unsigned int) 1e1;
 
     double omega = 1.0;
     double alpha = 0.5;
 
-	int mode = 0;
+	int mode = 1;
 
-	double stepLength = 1;
+	double stepLength = 1e-3;
 	double learning_rate = 1e-2;
 	double stop_at = 1e-2;
 	double max_iters = 1000;
@@ -56,19 +57,19 @@ int main() {
         }
     }
 
-    double total_energy = 0.0;
-    double total_energyO = 0.0;
-    double total_O = 0.0;
-    std::vector<double> total_rij(numberOfPairs, 0.0);  // Initialize to 0
-    std::vector<double> total_El_rij(numberOfPairs, 0.0);  // Initialize to 0
+    double total_El = 0.0;
+    double total_O1Pade = 0.0;
+    double total_O2Pade = 0.0;
+    std::vector<double> total_O1Jastrow(numberOfPairs, 0.0);
+    std::vector<double> total_O2Jastrow(numberOfPairs, 0.0);
 
-    while(iter < max_iters && l2_norm > stop_at) {
-        // Reset local accumulations before starting each iteration
-        std::fill(total_rij.begin(), total_rij.end(), 0.0);
-        std::fill(total_El_rij.begin(), total_El_rij.end(), 0.0);
-        total_energy = 0.0;
-        total_O = 0.0;
-        total_energyO = 0.0;
+    while(iter < max_iters && l2_norm > stop_at)
+    {
+        std::fill(total_O1Jastrow.begin(), total_O1Jastrow.end(), 0.0);
+        std::fill(total_O2Jastrow.begin(), total_O2Jastrow.end(), 0.0);
+        total_El = 0.0;
+        total_O1Pade = 0.0;
+        total_O2Pade = 0.0;
 
         #pragma omp parallel
         {
@@ -78,10 +79,12 @@ int main() {
             auto rng = std::make_unique<Random>(thread_seed);
             auto particles = setupRandomUniformInitialState(numberOfDimensions, numberOfParticles, *rng);
 
+            
+
             auto system = std::make_unique<System>(
-                std::make_unique<HarmonicOscillator>(omega),
+                std::make_unique<HarmonicOscillator>(omega, 1),
                 std::make_unique<Fermion>(alpha, (mode == 0 ? beta : betaPJ), mode, numberOfParticles),
-                std::make_unique<Metropolis>(std::move(rng)),
+                std::make_unique<MetropolisHastings>(std::move(rng)),
                 std::move(particles)
             );
 
@@ -100,83 +103,81 @@ int main() {
             auto duration = duration_cast<std::chrono::duration<double>>(stop - start);
             sampler->setTime(duration.count());
 
-            double energy = sampler->getEnergy();
-            std::vector<double> rij = sampler->getrij();
-            std::vector<double> Elrij = sampler->getEnergyrij();
-            double O = sampler->getO().at(0);
-            double ElO = sampler->getEnergyO().at(0);
+            double energy = sampler -> getEnergy();
+            std::vector<double> O1Jastrow = sampler -> getO1Jastow();
+            std::vector<double> O2Jastrow = sampler -> getO2Jastow();
+            double O1Pade = sampler -> getO1Pade();
+            double O2Pade = sampler -> getO2Pade();
 
             #pragma omp atomic
-            total_energy += energy;
+            total_El += energy;
 
             #pragma omp atomic
-            total_O += O;
+            total_O1Pade += O1Pade;
 
             #pragma omp atomic
-            total_energyO += ElO;
+            total_O2Pade += O2Pade;
 
-            // Accumulate values for rij and El_rij
-            for (int i = 0; i < numberOfPairs; i++) {
-                #pragma omp atomic
-                total_rij.at(i) += rij.at(i);
-
-                #pragma omp atomic
-                total_El_rij.at(i) += Elrij.at(i);
-            }
-            #pragma omp single
+            for (int i = 0; i < numberOfPairs; i++)
             {
-                if(l2_norm < stop_at * 1.1) sampler -> printOutputToTerminal(*system);
+                #pragma omp atomic
+                total_O1Jastrow[i] += O1Jastrow[i];
+
+                #pragma omp atomic
+                total_O2Jastrow[i] += O2Jastrow[i];
             }
         }
 
-        // Calculate the correct mean values across threads
-        double mean_energy = total_energy / n_threads;
-        double mean_energyO = total_energyO / n_threads;
-        double mean_O = total_O / n_threads;
+        double mean_El = total_El / n_threads;
+        double mean_O1Pade = total_O1Pade / n_threads;
+        double mean_O2Pade = total_O2Pade / n_threads;
 
-        std::vector<double> mean_rij(numberOfPairs, 0.0);  // Reset mean_rij
-        std::vector<double> mean_El_rij(numberOfPairs, 0.0);  // Reset mean_El_rij
+        std::vector<double> mean_O1Jastrow(numberOfPairs, 0.0);
+        std::vector<double> mean_O2Jastrow(numberOfPairs, 0.0);
 
-        for (int i = 0; i < numberOfPairs; i++) {
-            mean_rij.at(i) = total_rij.at(i) / n_threads;
-            mean_El_rij.at(i) = total_El_rij.at(i) / n_threads;
+        for (int i = 0; i < numberOfPairs; i++)
+        {
+            mean_O1Jastrow[i] = total_O1Jastrow[i]/ n_threads;
+            mean_O2Jastrow[i] = total_O2Jastrow[i]/ n_threads;
         }
 
-        // Perform GD update outside parallel region for safety
         if(mode == 0)
         {
-            for (int i = 0; i < numberOfPairs; i++) {
-                grad_beta.at(i) = 2 * (mean_El_rij.at(i) - mean_energy * mean_rij.at(i));
-                beta.at(i) -= learning_rate * grad_beta.at(i);
+            for (int i = 0; i < numberOfPairs; i++)
+            {
+                grad_beta[i] = 2 * (mean_O2Jastrow[i] - mean_El * mean_O1Jastrow[i]);
+                beta[i] -= learning_rate * grad_beta[i];
             }
 
             l2_norm = 0.0;
-            for (double g : grad_beta) {
+            for (double g : grad_beta)
+            {
                 l2_norm += g * g;
             }
             l2_norm = sqrt(l2_norm);
 
             std::cout << "Iteration " << iter
                       << ", beta = " << beta[0]
-                      << ", energy = " << mean_energy
+                      << ", energy = " << mean_El
                       << ", grad = " << l2_norm << std::endl;
 
             iter++;
         }
         else
         {
-            grad_betaPJ.at(0) = 2 * (mean_energyO - mean_energy * mean_O);
-            betaPJ.at(0) -= learning_rate * grad_betaPJ.at(0);
+            grad_betaPJ[0] = 2 * (mean_O2Pade - mean_El * mean_O1Pade);
+            betaPJ[0] -= learning_rate * grad_betaPJ[0];
 
             l2_norm = 0.0;
-            for (double g : grad_betaPJ) {
+            for (double g : grad_betaPJ)
+            {
                 l2_norm += g * g;
             }
             l2_norm = sqrt(l2_norm);
 
             std::cout << "Iteration " << iter
                       << ", betaPJ = " << betaPJ[0]
-                      << ", energy = " << mean_energy
+                      << ", energy = " << mean_El
                       << ", grad = " << l2_norm << std::endl;
 
             iter++;
