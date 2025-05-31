@@ -186,8 +186,8 @@ plt.savefig(save_dir / "T_MH.pdf")
 fig, ax = plt.subplots(figsize=(6.5, 4.0))
 
 ax.plot(nparts, TMetro, color=c1, marker='o', label=r"Serial Metropolis")
-ax.plot(nparts, TMetroOMP, color=c2, marker='o', label=r"OMP Metropolis")
-ax.plot(nparts, TMetroMPI, color=c3, linestyle=':', marker='o', label=r"MPI Metropolis")
+ax.plot(nparts, TMetroOMP, color=c2, linestyle=':', marker='o', label=r"OMP Metropolis")
+ax.plot(nparts, TMetroMPI, color=c3, marker='o', label=r"MPI Metropolis")
 
 ax.set_xlabel(r"Number of particles $N$")
 ax.set_ylabel(r"Time $t$, $[s]$")
@@ -198,8 +198,8 @@ plt.savefig(save_dir / "T_Metro.pdf")
 fig, ax = plt.subplots(figsize=(6.5, 4.0))
 
 ax.plot(nparts, TMetroNum, color=c4, marker='o', label=r"Serial Metropolis numerical")
-ax.plot(nparts, TMetroNumOMP, color=c5, marker='o', label=r"OMP Metropolis numerical")
-ax.plot(nparts, TMetroNumOMP, color=c6, linestyle=':', marker='o', label=r"MPI Metropolis numerical")
+ax.plot(nparts, TMetroNumOMP, color=c5, linestyle=':', marker='o', label=r"OMP Metropolis numerical")
+ax.plot(nparts, TMetroNumMPI, color=c6, marker='o', label=r"MPI Metropolis numerical")
 
 ax.set_xlabel(r"Number of particles $N$")
 ax.set_ylabel(r"Time $t$, $[s]$")
@@ -210,8 +210,8 @@ plt.savefig(save_dir / "T_MetroNum.pdf")
 fig, ax = plt.subplots(figsize=(6.5, 4.0))
 
 ax.plot(nparts, TMH, color=c1, marker='o', label=r"Serial MH")
-ax.plot(nparts, TMHOMP, color=c2, marker='o', label=r"OMP MH")
-ax.plot(nparts, TMHMPI, color=c3, linestyle=':', marker='o', label=r"MPI, MH")
+ax.plot(nparts, TMHOMP, color=c2, linestyle=':', marker='o', label=r"OMP MH")
+ax.plot(nparts, TMHMPI, color=c3, marker='o', label=r"MPI, MH")
 
 ax.set_xlabel(r"Number of particles $N$")
 ax.set_ylabel(r"Time $t$, $[s]$")
@@ -222,8 +222,8 @@ plt.savefig(save_dir / "T_MH.pdf")
 fig, ax = plt.subplots(figsize=(6.5, 4.0))
 
 ax.plot(nparts, TMHNum, color=c4, marker='o', label=r"Serial MH numerical")
-ax.plot(nparts, TMHNumOMP, color=c5, marker='o', label=r"OMP MH numerical")
-ax.plot(nparts, TMHNumMPI, color=c6, linestyle=':', marker='o', label=r"MPI MH numerical")
+ax.plot(nparts, TMHNumOMP, color=c5, linestyle=':', marker='o', label=r"OMP MH numerical")
+ax.plot(nparts, TMHNumMPI, color=c6, marker='o', label=r"MPI MH numerical")
 
 ax.set_xlabel(r"Number of particles $N$")
 ax.set_ylabel(r"Time $t$, $[s]$")

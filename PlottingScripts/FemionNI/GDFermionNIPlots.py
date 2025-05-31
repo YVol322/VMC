@@ -301,7 +301,7 @@ plt.xlabel(r'Step size $h$')
 plt.ylabel(r'Learning rate $\eta$')
 plt.tight_layout()
 #plt.show()
-plt.savefig(save_dir / 'Ferm_heatmap_iter12.pdf')
+plt.savefig(save_dir / 'Ferm_heatmap_iter12_MH.pdf')
 
 
 df = data['Me12']  # or whatever key
@@ -324,6 +324,8 @@ plt.tight_layout()
 #plt.show()
 plt.savefig(save_dir / 'Ferm_heatmap_En12.pdf')
 
+
+
 df = data['MH12']  # or whatever key
 # Pivot: rows=Eta, cols=H, values=Iter
 pivot = df.pivot(index='Eta', columns='H', values='Energy')
@@ -342,6 +344,7 @@ plt.ylabel(r'Learning rate $\eta$')
 plt.tight_layout()
 #plt.show()
 plt.savefig(save_dir / 'Ferm_heatmap_En12_MH.pdf')
+
 
 
 df = data['Me6']  # or whatever key
@@ -423,4 +426,4 @@ plt.xlabel(r'Step size $h$')
 plt.ylabel(r'Learning rate $\eta$')
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_heatmap_En6_MH.pdf')
-plt.show()
+#plt.show()

@@ -2,7 +2,6 @@
 
 Fermion::Fermion(double alpha, std::vector<double> beta, int mode, int n_particles)
 {
-    assert(alpha >= 0);
 
     int n_betas = beta.size();
     m_numberOfParameters = n_betas + 1;
