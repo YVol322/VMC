@@ -10,7 +10,7 @@ class Fermion : public WaveFunction
 {
     public:
         // Constructor.
-        Fermion(double alpha, std::vector<double> beta, int mode, int n_particles);
+        Fermion(double alpha, std::vector<double> beta, int mode, int n_particles, double omega);
     
         // Fermion subclass specific functions.
         double Jastrow(std::vector<std::unique_ptr<class Particle>>& particles);

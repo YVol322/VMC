@@ -1,6 +1,6 @@
 #include "fermionNI.h"
 
-FermionNI::FermionNI(double alpha, int n_particles)
+FermionNI::FermionNI(double alpha, int n_particles, double omega)
 {
     assert(alpha >= 0);
 
@@ -9,6 +9,9 @@ FermionNI::FermionNI(double alpha, int n_particles)
     m_parameters.push_back(alpha);
 
     m_particles = n_particles;
+
+    m_omega = omega;
+    m_sqrt_om = sqrt(omega);
 }
 
 
@@ -17,7 +20,7 @@ double FermionNI::Psi1(std::vector<std::unique_ptr<class Particle>>& particles, 
     double alpha = m_parameters.back();
     double r2 = r_squared(particles, part_idx);
 
-    return exp(-alpha * r2);
+    return exp(-alpha * m_omega * r2);
 }
 
 
@@ -69,7 +72,7 @@ std::vector<double> FermionNI::GradiPsi1(std::vector<std::unique_ptr<class Parti
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi1 = {-2 * alpha * x * psi1, -2 * alpha * y * psi1};
+    std::vector<double> grad_psi1 = {-2 * alpha * m_omega * x * psi1, -2 * alpha * m_omega * y * psi1};
 
     return grad_psi1;
 }
@@ -82,7 +85,7 @@ std::vector<double> FermionNI::GradiPsi2(std::vector<std::unique_ptr<class Parti
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi2 = {(1 - 2 * alpha * x * x) * psi1, -2 * alpha * y * x * psi1};
+    std::vector<double> grad_psi2 = {(1 - 2 * alpha * m_omega * x * x) * psi1, -2 * alpha * m_omega * y * x * psi1};
 
     return grad_psi2;
 }
@@ -95,7 +98,7 @@ std::vector<double> FermionNI::GradiPsi3(std::vector<std::unique_ptr<class Parti
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi3 = {-2 * alpha * x * y * psi1, (1 - 2 * alpha * y * y) * psi1};
+    std::vector<double> grad_psi3 = {-2 * alpha * m_omega * x * y * psi1, (1 - 2 * alpha * m_omega * y * y) * psi1};
 
     return grad_psi3;
 }
@@ -109,7 +112,7 @@ std::vector<double> FermionNI::GradiPsi4(std::vector<std::unique_ptr<class Parti
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi4 = {y * psi1 * (1 - 2 * alpha * x * x), x * psi1 * (1 - 2 * alpha * y * y)};
+    std::vector<double> grad_psi4 = {y * psi1 * (1 - 2 * alpha * m_omega * x * x), x * psi1 * (1 - 2 * alpha * m_omega * y * y)};
 
     return grad_psi4;
 }
@@ -123,7 +126,7 @@ std::vector<double> FermionNI::GradiPsi5(std::vector<std::unique_ptr<class Parti
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi5 = {2 * x * psi1 * (1 - alpha * x * x + alpha), -2 * alpha * y * (x * x - 1) * psi1};
+    std::vector<double> grad_psi5 = {2 * x * psi1 * (1 - alpha * m_omega * x * x + alpha * m_omega), -2 * alpha * m_omega * y * (x * x - 1) * psi1};
 
     return grad_psi5;
 }
@@ -137,7 +140,7 @@ std::vector<double> FermionNI::GradiPsi6(std::vector<std::unique_ptr<class Parti
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi6 = {-2 * alpha * x * (y * y - 1) * psi1, 2 * y * psi1 * (1 - alpha * y * y + alpha)};
+    std::vector<double> grad_psi6 = {-2 * alpha * m_omega * x * (y * y - 1) * psi1, 2 * y * psi1 * (1 - alpha * m_omega * y * y + alpha * m_omega)};
 
     return grad_psi6;
 }
@@ -150,7 +153,7 @@ double FermionNI::LapliPsi1(std::vector<std::unique_ptr<class Particle>>& partic
     double x = particles[part_idx] -> getPosition()[0];
     double y = particles[part_idx] -> getPosition()[1];
 
-    return (-4 * alpha + 4 * alpha * alpha * (x * x + y * y) ) * Psi1(particles, part_idx);
+    return (-4 * alpha * m_omega+ 4 * alpha * alpha * m_omega * m_omega * (x * x + y * y) ) * Psi1(particles, part_idx);
 }
 
 double FermionNI::LapliPsi2(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
@@ -160,7 +163,7 @@ double FermionNI::LapliPsi2(std::vector<std::unique_ptr<class Particle>>& partic
     double x = particles[part_idx] -> getPosition()[0];
     double y = particles[part_idx] -> getPosition()[1];
 
-    return (-8 * alpha * x + 4 * alpha * alpha * x * (x * x + y * y) ) * Psi1(particles, part_idx);
+    return (-8 * alpha * m_omega * x + 4 * alpha * alpha * m_omega * m_omega * x * (x * x + y * y) ) * Psi1(particles, part_idx);
 }
 
 double FermionNI::LapliPsi3(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
@@ -170,7 +173,7 @@ double FermionNI::LapliPsi3(std::vector<std::unique_ptr<class Particle>>& partic
     double x = particles[part_idx] -> getPosition()[0];
     double y = particles[part_idx] -> getPosition()[1];
 
-    return (-8 * alpha * y + 4 * alpha * alpha * y * (x * x + y * y) ) * Psi1(particles, part_idx);
+    return (-8 * alpha * m_omega * y + 4 * alpha * alpha * m_omega * m_omega * y * (x * x + y * y) ) * Psi1(particles, part_idx);
 }
 
 
@@ -181,7 +184,7 @@ double FermionNI::LapliPsi4(std::vector<std::unique_ptr<class Particle>>& partic
     double x = particles[part_idx] -> getPosition()[0];
     double y = particles[part_idx] -> getPosition()[1];
 
-    return x * y * Psi1(particles, part_idx) * (4 * alpha * alpha * (x * x + y * y) - 12 * alpha);
+    return x * y * Psi1(particles, part_idx) * (4 * alpha * alpha * m_omega * m_omega *(x * x + y * y) - 12 * alpha * m_omega);
 }
 
 
@@ -198,7 +201,7 @@ double FermionNI::LapliPsi5(std::vector<std::unique_ptr<class Particle>>& partic
     double common = x2 - 1;
 
     double laplacian_psi5 = 2 * psi1 *
-    (-4 * alpha * x2 + alpha * common * (2 * alpha * x2 - 1) + alpha * common * (2 * alpha * y2 - 1) + 1);
+    (-4 * alpha * m_omega * x2 + alpha * m_omega * common * (2 * alpha * m_omega * x2 - 1) + alpha * m_omega * common * (2 * alpha * m_omega * y2 - 1) + 1);
 
     return laplacian_psi5;
 }
@@ -217,7 +220,7 @@ double FermionNI::LapliPsi6(std::vector<std::unique_ptr<class Particle>>& partic
     double common = y2 - 1;
 
     double laplacian_psi6 = 2 * psi1 *
-    (-4 * alpha * y2 + alpha * common * (2 * alpha * x2 - 1) + alpha * common * (2 * alpha * y2 - 1) + 1);
+    (-4 * alpha * m_omega * y2 + alpha * m_omega * common * (2 * alpha * m_omega * x2 - 1) + alpha * m_omega * common * (2 * alpha * m_omega * y2 - 1) + 1);
 
     return laplacian_psi6;
 }

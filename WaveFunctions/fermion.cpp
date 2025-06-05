@@ -1,6 +1,6 @@
 #include "fermion.h"
 
-Fermion::Fermion(double alpha, std::vector<double> beta, int mode, int n_particles)
+Fermion::Fermion(double alpha, std::vector<double> beta, int mode, int n_particles, double omega)
 {
 
     int n_betas = beta.size();
@@ -12,6 +12,8 @@ Fermion::Fermion(double alpha, std::vector<double> beta, int mode, int n_particl
 
     m_particles = n_particles;
     m_mode = mode;
+    m_omega = omega;
+    m_sqrt_om = sqrt(omega);
 }
 
 
@@ -24,7 +26,7 @@ double Fermion::Jastrow(std::vector<std::unique_ptr<class Particle>>& particles)
     {
         for (int j = i + 1; j < n_particles; j++)
         {
-            double rij = r_ij(particles, i, j);
+            double rij = m_sqrt_om * r_ij(particles, i, j);
 
             int idx = BetaIndex(i,j);
             double beta_ij = m_parameters[idx];
@@ -48,7 +50,7 @@ double Fermion::PadeJastrow(std::vector<std::unique_ptr<class Particle>>& partic
         for (int j = i + 1; j < n_particles; j++)
         {
             double aij = a_ij(i, j);
-            double rij = r_ij(particles, i, j);
+            double rij = m_sqrt_om * r_ij(particles, i, j);
 
             sum += aij * rij / (1 + beta * rij);
         }
@@ -63,7 +65,7 @@ double Fermion::Psi1(std::vector<std::unique_ptr<class Particle>>& particles, do
     double alpha = m_parameters.back();
     double r2 = r_squared(particles, part_idx);
 
-    return exp(-alpha * r2);
+    return exp(-alpha * r2 * m_omega);
 }
 
 
@@ -115,7 +117,7 @@ std::vector<double> Fermion::GradiPsi1(std::vector<std::unique_ptr<class Particl
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi1 = {-2 * alpha * x * psi1, -2 * alpha * y * psi1};
+    std::vector<double> grad_psi1 = {-2 * alpha * m_omega * x * psi1, -2 * alpha * m_omega * y * psi1};
 
     return grad_psi1;
 }
@@ -128,7 +130,7 @@ std::vector<double> Fermion::GradiPsi2(std::vector<std::unique_ptr<class Particl
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi2 = {(1 - 2 * alpha * x * x) * psi1, -2 * alpha * y * x * psi1};
+    std::vector<double> grad_psi2 = {(1 - 2 * alpha * m_omega * x * x) * psi1, -2 * alpha * m_omega * y * x * psi1};
 
     return grad_psi2;
 }
@@ -141,7 +143,7 @@ std::vector<double> Fermion::GradiPsi3(std::vector<std::unique_ptr<class Particl
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi3 = {-2 * alpha * x * y * psi1, (1 - 2 * alpha * y * y) * psi1};
+    std::vector<double> grad_psi3 = {-2 * alpha * m_omega * x * y * psi1, (1 - 2 * alpha * m_omega * y * y) * psi1};
 
     return grad_psi3;
 }
@@ -155,7 +157,8 @@ std::vector<double> Fermion::GradiPsi4(std::vector<std::unique_ptr<class Particl
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi4 = {y * psi1 * (1 - 2 * alpha * x * x), x * psi1 * (1 - 2 * alpha * y * y)};
+    std::vector<double> grad_psi4 = {y * psi1 * (1 - 2 * alpha * m_omega * x * x),
+                                        x * psi1 * (1 - 2 * alpha * m_omega *y * y)};
 
     return grad_psi4;
 }
@@ -169,7 +172,11 @@ std::vector<double> Fermion::GradiPsi5(std::vector<std::unique_ptr<class Particl
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi5 = {2 * x * psi1 * (1 - alpha * x * x + alpha), -2 * alpha * y * (x * x - 1) * psi1};
+    std::vector<double> grad_psi5 = {
+        2.0 * x * psi1 * (1.0 - alpha * m_omega * x * x + alpha * m_omega),
+       -2.0 * alpha * m_omega * y * (x * x - 1.0) * psi1
+    };
+
 
     return grad_psi5;
 }
@@ -183,7 +190,10 @@ std::vector<double> Fermion::GradiPsi6(std::vector<std::unique_ptr<class Particl
     double y = particles[part_idx] -> getPosition()[1];
     double psi1 = Psi1(particles, part_idx);
 
-    std::vector<double> grad_psi6 = {-2 * alpha * x * (y * y - 1) * psi1, 2 * y * psi1 * (1 - alpha * y * y + alpha)};
+    std::vector<double> grad_psi6 = {
+        -2.0 * alpha * m_omega * x * (y * y - 1.0) * psi1,
+         2.0 * y * psi1 * (1.0 - alpha * m_omega * y * y + alpha * m_omega)
+    };
 
     return grad_psi6;
 }
@@ -196,7 +206,7 @@ double Fermion::LapliPsi1(std::vector<std::unique_ptr<class Particle>>& particle
     double x = particles[part_idx] -> getPosition()[0];
     double y = particles[part_idx] -> getPosition()[1];
 
-    return (-4 * alpha + 4 * alpha * alpha * (x * x + y * y) ) * Psi1(particles, part_idx);
+    return (-4 * alpha * m_omega + 4 * alpha * alpha * m_omega * m_omega * (x * x + y * y) ) * Psi1(particles, part_idx);
 }
 
 double Fermion::LapliPsi2(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
@@ -206,7 +216,8 @@ double Fermion::LapliPsi2(std::vector<std::unique_ptr<class Particle>>& particle
     double x = particles[part_idx] -> getPosition()[0];
     double y = particles[part_idx] -> getPosition()[1];
 
-    return (-8 * alpha * x + 4 * alpha * alpha * x * (x * x + y * y) ) * Psi1(particles, part_idx);
+    return (-8 * alpha * m_omega * x + 4 * alpha * alpha * m_omega * m_omega * 
+                                                                x * (x * x + y * y) ) * Psi1(particles, part_idx);
 }
 
 double Fermion::LapliPsi3(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
@@ -216,7 +227,8 @@ double Fermion::LapliPsi3(std::vector<std::unique_ptr<class Particle>>& particle
     double x = particles[part_idx] -> getPosition()[0];
     double y = particles[part_idx] -> getPosition()[1];
 
-    return (-8 * alpha * y + 4 * alpha * alpha * y * (x * x + y * y) ) * Psi1(particles, part_idx);
+    return (-8 * alpha * m_omega * y + 4 * alpha * alpha * m_omega * m_omega * 
+                                                                y * (x * x + y * y) ) * Psi1(particles, part_idx);
 }
 
 
@@ -227,7 +239,8 @@ double Fermion::LapliPsi4(std::vector<std::unique_ptr<class Particle>>& particle
     double x = particles[part_idx] -> getPosition()[0];
     double y = particles[part_idx] -> getPosition()[1];
 
-    return x * y * Psi1(particles, part_idx) * (4 * alpha * alpha * (x * x + y * y) - 12 * alpha);
+    return x * y * Psi1(particles, part_idx) * (4 * alpha * alpha * m_omega * m_omega * (x * x + y * y)
+                                                                                        - 12 * alpha * m_omega);
 }
 
 
@@ -244,7 +257,9 @@ double Fermion::LapliPsi5(std::vector<std::unique_ptr<class Particle>>& particle
     double common = x2 - 1;
 
     double laplacian_psi5 = 2 * psi1 *
-    (-4 * alpha * x2 + alpha * common * (2 * alpha * x2 - 1) + alpha * common * (2 * alpha * y2 - 1) + 1);
+    (-4 * alpha * m_omega * x2 +
+    alpha * m_omega * common * (2 * alpha * m_omega * x2 - 1)+
+    alpha * m_omega * common * (2 * alpha * m_omega * y2 - 1) + 1);
 
     return laplacian_psi5;
 }
@@ -262,8 +277,12 @@ double Fermion::LapliPsi6(std::vector<std::unique_ptr<class Particle>>& particle
     double y2 = y * y;
     double common = y2 - 1;
 
-    double laplacian_psi6 = 2 * psi1 *
-    (-4 * alpha * y2 + alpha * common * (2 * alpha * x2 - 1) + alpha * common * (2 * alpha * y2 - 1) + 1);
+    double laplacian_psi6 = 2.0 * psi1 * (
+        -4.0 * alpha * m_omega * y2
+      + (alpha * m_omega) * common * (2.0 * alpha * m_omega * x2 - 1.0)
+      + (alpha * m_omega) * common * (2.0 * alpha * m_omega * y2 - 1.0)
+      + 1.0
+    );
 
     return laplacian_psi6;
 }
@@ -402,7 +421,7 @@ std::vector<double> Fermion::GradiJOverJ(std::vector<std::unique_ptr<class Parti
             double coord_i = particle_i.getPosition()[d];
             double coord_j = particle_j.getPosition()[d];
 
-            grad[d] += beta_il * (coord_i - coord_j) / ril;
+            grad[d] += beta_il * m_sqrt_om *(coord_i - coord_j) / ril;
         }
     }
 
@@ -428,13 +447,14 @@ std::vector<double> Fermion::GradiPJOverPJ(std::vector<std::unique_ptr<class Par
         Particle particle_j = *(particles[j]);
         double ril = r_ij(particles, part_idx, j);
         double aij = a_ij(part_idx, j);
+        double denom = (1 + beta * m_sqrt_om *ril);
 
         for(int d = 0; d < n_dimensions; d++)
         {
             double coord_i = particle_i.getPosition()[d];
             double coord_j = particle_j.getPosition()[d];
 
-            grad[d] += aij * (coord_i - coord_j) / (ril * (1 + beta * ril) * (1 + beta * ril));
+            grad[d] += aij * m_sqrt_om * (coord_i - coord_j) / (ril * denom * denom);
         }
     }
 
@@ -464,7 +484,7 @@ double Fermion::LapliJOverJ(std::vector<std::unique_ptr<class Particle>>& partic
 
         double ril = r_ij(particles, part_idx, j);
 
-        sum2 += beta_il / ril;
+        sum2 += m_sqrt_om * beta_il / ril;
     }
 
     return sum1 + sum2;
@@ -492,9 +512,9 @@ double Fermion::LapliPJOverPJ(std::vector<std::unique_ptr<class Particle>>& part
 
         double aij = a_ij(part_idx, j);
         double ril = r_ij(particles, part_idx, j);
-        double t = 1 + beta * ril;
+        double t = 1 + m_sqrt_om * beta * ril;
 
-        sum2 += aij * (1/(ril * t * t) - 2 * beta/(t * t * t));
+        sum2 += aij * m_sqrt_om * (1/(ril * t * t) - 2 * m_sqrt_om * beta / (t * t * t));
     }
 
     return sum1 + sum2;

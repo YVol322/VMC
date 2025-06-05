@@ -33,4 +33,6 @@ class WaveFunction
         std::vector<double> m_parameters = std::vector<double>();
         int m_particles = 0;
         int m_mode = 0;
+        double m_omega = 0;
+        double m_sqrt_om = 0;
 };

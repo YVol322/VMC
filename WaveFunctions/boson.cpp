@@ -1,7 +1,7 @@
 #include "boson.h"
 
 
-Boson::Boson(double alpha, int n_particles)
+Boson::Boson(double alpha, int n_particles, double omega)
 {
     assert(alpha >= 0);
 
@@ -11,6 +11,9 @@ Boson::Boson(double alpha, int n_particles)
     m_parameters.push_back(alpha);
 
     m_particles = n_particles;
+
+    m_omega = omega;
+    m_sqrt_om = sqrt(omega);
 }
 
 
@@ -24,7 +27,7 @@ double Boson::PsiT(std::vector<std::unique_ptr<class Particle>>& particles)
         argument += r_squared(particles, i);
     }
 
-    return exp(-alpha * argument);
+    return exp(-alpha * m_omega * argument);
 }
 
 
@@ -42,7 +45,7 @@ double Boson::LaplPsiTOverPsiT(std::vector<std::unique_ptr<class Particle>>& par
     }
     
 
-    return (-2 * n_dimensions * m_particles * alpha + 4 * alpha * alpha * argument);
+    return (-2 * n_dimensions * m_particles * alpha * m_omega + 4 * alpha * alpha * m_omega * m_omega * argument);
 }
 
 
@@ -66,7 +69,7 @@ std::vector<double> Boson::quantumForce(std::vector<std::unique_ptr<class Partic
     
     for(int i = 0; i < d; i++)
     {
-        F[i] = -4 * alpha * r[i];
+        F[i] = -4 * alpha * m_omega * r[i];
     }
 
     return F;

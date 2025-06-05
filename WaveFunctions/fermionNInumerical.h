@@ -18,7 +18,7 @@ class FermionNInumerical : public WaveFunction
 {
     public:
         // Constructor.
-        FermionNInumerical(double alpha, int n_particles);
+        FermionNInumerical(double alpha, int n_particles, double omega);
     
         VectorXvar fill_x(std::vector<std::unique_ptr<class Particle>>& particles);
         var psi1i(VectorXvar& x, int idx);

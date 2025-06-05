@@ -1,7 +1,7 @@
 #include "fermionnumerical.h"
 
 
-FermionNumerical::FermionNumerical(double alpha, std::vector<double>beta, int mode, int n_particles)
+FermionNumerical::FermionNumerical(double alpha, std::vector<double>beta, int mode, int n_particles, double omega)
 {
     assert(alpha >= 0);
 
@@ -14,6 +14,9 @@ FermionNumerical::FermionNumerical(double alpha, std::vector<double>beta, int mo
 
     m_particles = n_particles;
     m_mode = mode;
+
+    m_omega = omega;
+    m_sqrt_om = sqrt(omega);
 }
 
 
@@ -51,7 +54,7 @@ var FermionNumerical::Jastrow(VectorXvar& x)
                 var delta = x(i * n_dimensions + d) - x(j * n_dimensions + d);
                 sum2 += delta * delta;
             }
-            var rij = sqrt(sum2);
+            var rij = m_sqrt_om * sqrt(sum2);
 
             int idx = BetaIndex(i,j);
             var beta_ij = m_parameters[idx];
@@ -82,7 +85,7 @@ var FermionNumerical::PadeJastrow(VectorXvar& x)
                 var delta = x(i * n_dimensions + d) - x(j * n_dimensions + d);
                 sum2 += delta * delta;
             }
-            var rij = sqrt(sum2);
+            var rij = m_sqrt_om * sqrt(sum2);
 
             var aij = a_ij(i, j);
 
@@ -102,7 +105,7 @@ var FermionNumerical::psi1i(VectorXvar& x, int idx)
     var y_ = x(idx + 1);
     var sum = x_ * x_ + y_ * y_;
 
-    return exp(-alpha * sum);
+    return exp(-alpha * m_omega * sum);
 }
 
 

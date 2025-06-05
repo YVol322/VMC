@@ -18,7 +18,7 @@ class FermionNumerical : public WaveFunction
 {
     public:
         // Constructor.
-        FermionNumerical(double alpha, std::vector<double> beta, int mode, int n_particles);
+        FermionNumerical(double alpha, std::vector<double> beta, int mode, int n_particles, double omega);
     
         VectorXvar fill_x(std::vector<std::unique_ptr<class Particle>>& particles);
         var Jastrow(VectorXvar& x);

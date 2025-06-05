@@ -48,16 +48,24 @@ for key, path in files.items():
 df = data['J6'] 
 
 pivot = df.pivot(index='Eta', columns='H', values='Iter')
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".0f",
-    cbar_kws={'label': r'Iteration $i$'}
+    cbar_kws={'label': r'Number of iterations $i$'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'Number of iterations $i$', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_J6_heatmap_iter.pdf')
 plt.savefig(save_png / 'Ferm_J6_heatmap_iter.png')
@@ -66,16 +74,23 @@ plt.savefig(save_png / 'Ferm_J6_heatmap_iter.png')
 pivot = df.pivot(index='Eta', columns='H', values='Energy')
 pivot = pivot.replace([np.inf, -np.inf], 0)
 
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".3f",
-    cbar_kws={'label': r'GS Energy $E_0$'}
+    cbar_kws={'label': r'Variational Energy $E_T$'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'Variational energy $E_T$ $[a.u.]$', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_J6_heatmap_En.pdf')
 plt.savefig(save_png / 'Ferm_J6_heatmap_En.png')
@@ -85,16 +100,23 @@ pivot = df.pivot(index='Eta', columns='H', values='grad')
 pivot = pivot.fillna(100)
 
 
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".1e",
     cbar_kws={'label': r'L2 norm'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'L2 norm', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_J6_heatmap_grad_MH.pdf')
 plt.savefig(save_png / 'Ferm_J6_heatmap_grad_MH.png')
@@ -107,16 +129,23 @@ df = data['J6MH']
 pivot = df.pivot(index='Eta', columns='H', values='Iter')
 pivot = pivot.fillna(0)
 
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".0f",
-    cbar_kws={'label': r'Iteration $i$'}
+    cbar_kws={'label': r'Number of iterations $i$'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'Number of iterations $i$', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_J6_heatmap_iter_MH.pdf')
 plt.savefig(save_png / 'Ferm_J6_heatmap_iter_MH.png')
@@ -125,16 +154,23 @@ plt.savefig(save_png / 'Ferm_J6_heatmap_iter_MH.png')
 
 pivot = df.pivot(index='Eta', columns='H', values='Energy')
 
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".3f",
-    cbar_kws={'label': r'GS Energy $E_0$'}
+    cbar_kws={'label': r'Variational Energy $E_T$'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'Variational energy $E_T$ $[a.u.]$', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_J6_heatmap_En_MH.pdf')
 plt.savefig(save_png / 'Ferm_J6_heatmap_En_MH.png')
@@ -143,16 +179,23 @@ plt.savefig(save_png / 'Ferm_J6_heatmap_En_MH.png')
 
 pivot = df.pivot(index='Eta', columns='H', values='grad')
 
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".1e",
     cbar_kws={'label': r'L2 norm'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'L2 norm', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_J6_heatmap_grad_MH.pdf')
 plt.savefig(save_png / 'Ferm_J6_heatmap_grad_MH.png')
@@ -161,16 +204,23 @@ plt.savefig(save_png / 'Ferm_J6_heatmap_grad_MH.png')
 df = data['PJ6'] 
 
 pivot = df.pivot(index='Eta', columns='H', values='Iter')
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".0f",
-    cbar_kws={'label': r'Iteration $i$'}
+    cbar_kws={'label': r'Number of iterations $i$'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'Number of iterations $i$', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_PJ6_heatmap_iter.pdf')
 plt.savefig(save_png / 'Ferm_PJ6_heatmap_iter.png')
@@ -178,16 +228,23 @@ plt.savefig(save_png / 'Ferm_PJ6_heatmap_iter.png')
 
 pivot = df.pivot(index='Eta', columns='H', values='Energy')
 
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".3f",
-    cbar_kws={'label': r'GS Energy $E_0$'}
+    cbar_kws={'label': r'Variational Energy $E_T$'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'Variational energy $E_T$ $[a.u.]$', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_PJ6_heatmap_En.pdf')
 plt.savefig(save_png / 'Ferm_PJ6_heatmap_En.png')
@@ -196,16 +253,23 @@ plt.savefig(save_png / 'Ferm_PJ6_heatmap_En.png')
 
 pivot = df.pivot(index='Eta', columns='H', values='grad')
 
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".1e",
     cbar_kws={'label': r'L2 norm'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'L2 norm', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_PJ6_heatmap_grad.pdf')
 plt.savefig(save_png / 'Ferm_PJ6_heatmap_grad.png')
@@ -214,16 +278,23 @@ plt.savefig(save_png / 'Ferm_PJ6_heatmap_grad.png')
 df = data['PJ6MH'] 
 
 pivot = df.pivot(index='Eta', columns='H', values='Iter')
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".0f",
-    cbar_kws={'label': r'Iteration $i$'}
+    cbar_kws={'label': r'Number of iterations $i$'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'Number of iterations $i$', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_PJ6_heatmap_iter_MH.pdf')
 plt.savefig(save_png / 'Ferm_PJ6_heatmap_iter_MH.png')
@@ -231,16 +302,23 @@ plt.savefig(save_png / 'Ferm_PJ6_heatmap_iter_MH.png')
 
 pivot = df.pivot(index='Eta', columns='H', values='Energy')
 
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".3f",
-    cbar_kws={'label': r'GS Energy $E_0$'}
+    cbar_kws={'label': r'Variational Energy $E_T$'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'Variational energy $E_T$ $[a.u.]$', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_PJ6_heatmap_En_MH.pdf')
 plt.savefig(save_png / 'Ferm_PJ6_heatmap_En_MH.png')
@@ -249,54 +327,59 @@ plt.savefig(save_png / 'Ferm_PJ6_heatmap_En_MH.png')
 
 pivot = df.pivot(index='Eta', columns='H', values='grad')
 
-plt.figure(figsize=(6, 4.4))
-sns.heatmap(
+plt.figure(figsize=(6.5, 5.1))
+ax = sns.heatmap(
     pivot,
     cmap='viridis',
     annot=True,
     fmt=".1e",
     cbar_kws={'label': r'L2 norm'}
 )
-plt.xlabel(r'Step size $h$')
-plt.ylabel(r'Learning rate $\eta$')
+ax.set_xlabel(r'Step size $h$', fontsize=16)
+ax.set_ylabel(r'Learning rate $\eta$', fontsize=16)
+# Set tick label sizes
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+# Adjust colorbar label and tick sizes
+cbar = ax.collections[0].colorbar
+cbar.set_label(r'L2 norm', fontsize=16)
+cbar.ax.tick_params(labelsize=16)
 plt.tight_layout()
 plt.savefig(save_dir / 'Ferm_PJ6_heatmap_grad_MH.pdf')
 plt.savefig(save_png / 'Ferm_PJ6_heatmap_grad_MH.png')
-#plt.show()
 
-#c = sns.color_palette("colorblind")
-#plt.style.use("ggplot")
-#
-#base4 = Path('Results/Tables/Fermions/Interacting/Program2')
-#fname = 'OMP_J_MH.cvv'
-#path  = base4 / fname
-#
-#cols = ['Iter', 'Energy', 'Grad', 'Beta']
-#
-#if not path.exists():
-#    raise FileNotFoundError(f"Missing file: {path}")
-#df = pd.read_csv(path, sep='\t')[cols]
-#
-#
-#
-#fig, ax = plt.subplots(figsize=(6.5, 4.0))
-#
-#ax.plot(df['Iter'], df['Energy'], color=c[0], marker='o',
-#        label=f"Jastow MH")
-#
-#ax.set_xlabel(r"Number of iterations $i$")
-#ax.set_ylabel(r"GS energy $E_0$")
-#plt.legend()
-#plt.savefig(save_dir / "J6_En.pdf")
-#
-#
-#fig, ax = plt.subplots(figsize=(6.5, 4.0))
-#
-#ax.plot(df['Iter'], df['Grad'], color=c[1], marker='o',
-#        label=f"Jastow MH")
-#
-#ax.set_xlabel(r"Number of iterations $i$")
-#ax.set_ylabel(r"Gradient $\langle \nabla_{\beta_{12}}\Psi_T\rangle$")
-#plt.legend()
-#plt.savefig(save_dir / "J6_Grad.pdf")
-#
+c = sns.color_palette("colorblind")
+plt.style.use("ggplot")
+
+base4 = Path('Results/Tables/Fermions/Interacting/Program2')
+fname = 'OMP_J_MH.cvv'
+path  = base4 / fname
+
+cols = ['Iter', 'Energy', 'Grad', 'Beta']
+
+if not path.exists():
+    raise FileNotFoundError(f"Missing file: {path}")
+df = pd.read_csv(path, sep='\t')[cols]
+
+
+
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
+
+ax.plot(df['Iter'], df['Energy'], color=c[0], marker='o',
+        label=f"Jastow MH")
+
+ax.set_xlabel(r"Number of iterations $i$", fontsize = 16)
+ax.set_ylabel(r"Variational energy $E_T$", fontsize = 16)
+plt.legend(fontsize = 12)
+plt.savefig(save_dir / "J6_En.pdf")
+
+
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
+
+ax.plot(df['Iter'], df['Grad'], color=c[1], marker='o',
+        label=f"Jastow MH")
+
+ax.set_xlabel(r"Number of iterations $i$", fontsize = 16)
+ax.set_ylabel(r"Gradient $\langle \nabla_{\beta_{12}}\Psi_T\rangle$", fontsize = 16)
+plt.legend(fontsize = 12)
+plt.savefig(save_dir / "J6_Grad.pdf")

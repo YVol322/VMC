@@ -1,7 +1,7 @@
 #include "bosonnumerical.h"
 
 
-BosonNumerical::BosonNumerical(double alpha, int n_particles)
+BosonNumerical::BosonNumerical(double alpha, int n_particles, double omega)
 {
     assert(alpha >= 0);
 
@@ -11,6 +11,9 @@ BosonNumerical::BosonNumerical(double alpha, int n_particles)
     m_parameters.push_back(alpha);
 
     m_particles = n_particles;
+
+    m_omega = omega;
+    m_sqrt_om = sqrt(omega);
 }
 
 
@@ -47,7 +50,7 @@ var BosonNumerical::PsiT(VectorXvar& x)
     }
     var alpha = m_parameters.back();
 
-    return exp(-alpha * sum);
+    return exp(-alpha * m_omega * sum);
 }
 
 

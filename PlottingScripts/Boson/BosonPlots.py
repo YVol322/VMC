@@ -39,7 +39,6 @@ schemes = {
 }
 cols = ['N','Energy','Time','AccRatio']
 
-# data[(backend, kind, dim)] = DataFrame
 data = {}
 
 for backend, base_path in bases.items():
@@ -68,41 +67,40 @@ plt.style.use("ggplot")
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 dims = ['1D', '2D', '3D']
 for i, dim in enumerate(dims):
     df = data[('Seq', 'Metro', dim)]
     c = colors[i]
     ax.plot(df['N'], df['Energy'], color=c, marker='o',
-            label=f"Metropolis {dim} energy")
+            label=f"Metropolis variational energy $E_T$, {dim}")
     ax.plot(df['N'], E_analyt[dim], 'D', mfc='white', mec=c, ms=6,
-            label=f"Analytical {dim} energy")
+            label=f"Metropolis analytical GS energy $E_0$, {dim}")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"GS energy $E_0$")
-plt.legend()
-#plt.savefig(save_dir / "E_N.pdf")
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Energy $E$ [a.u.]", fontsize = 16)
+ax.legend(fontsize = 10)
+plt.savefig(save_dir / "E_N.pdf")
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 for i, dim in enumerate(dims):
     df = data[('Seq', 'MetroHast', dim)]
     c = colors[i+5]
     ax.plot(df['N'], df['Energy'], color=c, marker='o',
-            label=f"MH {dim} energy")
+            label=f"MH variational energy $E_T$, {dim}")
     ax.plot(df['N'], E_analyt[dim], 'D', mfc='white', mec=c, ms=6,
-            label=f"Analytical {dim} energy")
+            label=f"MH analytical GS $E_0$, {dim}")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"GS energy $E_0$")
-plt.legend()
-#plt.savefig(save_dir / "E_N_MH.pdf")
-#plt.show()
-
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Energy $E$ [a.u.]", fontsize = 16)
+ax.legend(fontsize = 10)
+plt.savefig(save_dir / "E_N_MH.pdf")
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 for i, dim in enumerate(dims):
     df  = data[('Seq', 'MetroHast',    dim)]
     dfN = data[('Seq', 'NumMetroHast', dim)]
@@ -113,16 +111,16 @@ for i, dim in enumerate(dims):
     y = df['Energy'] - dfN['Energy'] + dim_num
 
     ax.plot(df['N'], y, color=c, marker='o',
-            label=f"Metropolis {dim}")
+            label=f"Metropolis, {dim}")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Energy difference $\Delta E + d$")
-ax.legend()
-#plt.savefig(save_dir / "deltaE.pdf")
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Energy difference $\Delta E + d$ [a.u.]", fontsize = 16)
+ax.legend(fontsize = 12)
+plt.savefig(save_dir / "deltaE.pdf")
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 for i, dim in enumerate(dims):
     df  = data[('Seq', 'Metro',    dim)]
     dfN = data[('Seq', 'NumMetro', dim)]
@@ -133,79 +131,79 @@ for i, dim in enumerate(dims):
     y = df['Energy'] - dfN['Energy'] + dim_num
 
     ax.plot(df['N'], y, color=c, marker='o',
-            label=f"MH {dim}")
+            label=f"MH, {dim}")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Energy difference $\Delta E + d$")
-ax.legend()
-#plt.savefig(save_dir / "deltaEMH.pdf")
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Energy difference $\Delta E + d$ [a.u.]", fontsize = 16)
+ax.legend(fontsize = 12)
+plt.savefig(save_dir / "deltaEMH.pdf")
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 df1  = data[('Seq', 'Metro', '3D')]
 df2 = data[('Seq', 'NumMetro', '3D')]
 c1   = colors[2]
 c2   = colors[3]
 
 ax.plot(df['N'], df1['Time'], color=c1, marker='o',
-        label=f"3D Metropolis, analytical derivatives")
+        label=f"Metropolis, analytical derivatives, 3D")
 ax.plot(df['N'], df2['Time'], color=c2, marker='o',
-        label=f"3D Metropolis, numerical derivatives")
+        label=f"Metropolis, numerical derivatives, 3D")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Time $t$, $[s]$")
-ax.legend()
-#plt.savefig(save_dir / "Time.pdf")
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Time $t$, $[s]$", fontsize = 16)
+ax.legend(fontsize = 12)
+plt.savefig(save_dir / "Time.pdf")
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 df1  = data[('Seq', 'MetroHast', '3D')]
 df2 = data[('Seq', 'NumMetroHast', '3D')]
 c1   = colors[1]
 c2   = colors[4]
 
 ax.plot(df['N'], df1['Time'], color=c1, marker='o',
-        label=f"3D MH, analytical derivatives")
+        label=f"MH, analytical derivatives, 3D")
 ax.plot(df['N'], df2['Time'], color=c2, marker='o',
-        label=f"3D MH, numerical derivatives")
+        label=f"MH, numerical derivatives, 3D")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Time $t$, $[s]$")
-ax.legend()
-#plt.savefig(save_dir / "TimeMH.pdf")
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Time $t$, $[s]$", fontsize = 16)
+ax.legend(fontsize = 12)
+plt.savefig(save_dir / "TimeMH.pdf")
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 for i, dim in enumerate(dims):
     df  = data[('Seq', 'Metro',    dim)]
     c   = colors[i]
 
     ax.plot(df['N'], df['AccRatio'], color=c, marker='o',
-            label=f"Metroplois {dim}")
+            label=f"Metroplois, {dim}")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Acceptance ratio $A$")
-ax.legend()
-#plt.savefig(save_dir / "AccRate.pdf")
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Acceptance ratio $A$", fontsize = 16)
+ax.legend(fontsize = 12)
+plt.savefig(save_dir / "AccRate.pdf")
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 for i, dim in enumerate(dims):
     df2 = data[('Seq', 'MetroHast', dim)]
     c   = colors[i+3]
 
     ax.plot(df['N'], df2['AccRatio'], color=c, marker='o',
-            label=f"MH {dim}")
+            label=f"MH, {dim}")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Acceptance ratio $A$")
-ax.legend()
-#plt.savefig(save_dir / "AccRateMH.pdf")
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Acceptance ratio $A$", fontsize = 16)
+ax.legend(fontsize = 12)
+plt.savefig(save_dir / "AccRateMH.pdf")
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 df  = data[('Seq', 'Metro', '3D')]
 dfMPI  = data[('MPI', 'Metro', '3D')]
 dfOMP  = data[('OMP', 'Metro', '3D')]
@@ -217,19 +215,19 @@ y1 = df['Energy'] - dfOMP['Energy'] + 1
 y2 = df['Energy'] - dfMPI['Energy'] + 2
 
 ax.plot(df['N'], y1, color=c1, marker='o',
-            label=f"OMP 3D")
+            label=f"OMP, 3D")
 
 ax.plot(df['N'], y2, color=c2, marker='o',
-            label=f"MPI 3D")
+            label=f"MPI, 3D")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Energy difference $\Delta E + b$")
-ax.legend()
-#plt.savefig(save_dir / "deltaEParallel.pdf")
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Energy difference $\Delta E + b$ [a.u.]", fontsize = 16)
+ax.legend(fontsize = 12)
+plt.savefig(save_dir / "deltaEParallel.pdf")
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 df  = data[('Seq', 'MetroHast', '3D')]
 dfMPI  = data[('MPI', 'MetroHast', '3D')]
 dfOMP  = data[('OMP', 'MetroHast', '3D')]
@@ -241,19 +239,19 @@ y1 = df['Energy'] - dfOMP['Energy'] + 1
 y2 = df['Energy'] - dfMPI['Energy'] + 2
 
 ax.plot(df['N'], y1, color=c1, marker='o',
-            label=f"OMP 3D")
+            label=f"OMP, 3D")
 
 ax.plot(df['N'], y2, color=c2, marker='o',
-            label=f"MPI 3D")
+            label=f"MPI, 3D")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Energy difference $\Delta E + b$")
-ax.legend()
-#plt.savefig(save_dir / "deltaEMHParallel.pdf")
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Energy difference $\Delta E + b$ [a.u.]", fontsize = 16)
+ax.legend(fontsize = 12)
+plt.savefig(save_dir / "deltaEMHParallel.pdf")
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 df  = data[('Seq', 'Metro', '3D')]
 dfMPI  = data[('MPI', 'Metro', '3D')]
 dfOMP  = data[('OMP', 'Metro', '3D')]
@@ -263,22 +261,22 @@ c2   = colors[2]
 c3   = colors[3]
 
 ax.plot(df['N'], df['Time'], color=c1, marker='o',
-            label=f"Serial 3D")
+            label=f"Serial, 3D")
 
 ax.plot(df['N'], dfOMP['Time'], color=c3, marker='o',
-            label=f"OMP 3D")
+            label=f"OMP, 3D")
 
 ax.plot(df['N'], dfMPI['Time'], color=c2, marker='o',
-            label=f"MPI 3D")
+            label=f"MPI, 3D")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Time $t$, $[s]$")
-ax.legend()
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Time $t$, $[s]$", fontsize = 16)
+ax.legend(fontsize = 12)
 plt.savefig(save_dir / "TimeParallel.pdf")
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 df  = data[('Seq', 'NumMetro', '3D')]
 dfMPI  = data[('MPI', 'NumMetro', '3D')]
 dfOMP  = data[('OMP', 'NumMetro', '3D')]
@@ -288,23 +286,23 @@ c2   = colors[5]
 c3   = colors[6]
 
 ax.plot(df['N'], df['Time'], color=c1, marker='o',
-            label=f"Serial 3D")
+            label=f"Serial, 3D")
 
 ax.plot(df['N'], dfOMP['Time'], color=c3, marker='o',
-            label=f"OMP 3D")
+            label=f"OMP, 3D")
 
 ax.plot(df['N'], dfMPI['Time'], color=c2, marker='o',
-            label=f"MPI 3D")
+            label=f"MPI, 3D")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Time $t$, $[s]$")
-ax.legend()
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Time $t$, $[s]$", fontsize = 16)
+ax.legend(fontsize = 12)
 plt.savefig(save_dir / "TimeParallelNum.pdf")
 
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 df  = data[('Seq', 'MetroHast', '3D')]
 dfMPI  = data[('MPI', 'MetroHast', '3D')]
 dfOMP  = data[('OMP', 'MetroHast', '3D')]
@@ -314,23 +312,23 @@ c2   = colors[2]
 c3   = colors[3]
 
 ax.plot(df['N'], df['Time'], color=c1, marker='o',
-            label=f"Serial 3D")
+            label=f"Serial, 3D")
 
 ax.plot(df['N'], dfOMP['Time'], color=c3, marker='o',
-            label=f"OMP 3D")
+            label=f"OMP, 3D")
 
 ax.plot(df['N'], dfMPI['Time'], color=c2, marker='o',
-            label=f"MPI 3D")
+            label=f"MPI, 3D")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Time $t$, $[s]$")
-ax.legend()
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Time $t$, $[s]$", fontsize = 16)
+ax.legend(fontsize = 12)
 plt.savefig(save_dir / "TimeParallelMH.pdf")
 
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 df  = data[('Seq', 'NumMetroHast', '3D')]
 dfMPI  = data[('MPI', 'NumMetroHast', '3D')]
 dfOMP  = data[('OMP', 'NumMetroHast', '3D')]
@@ -340,15 +338,15 @@ c2   = colors[5]
 c3   = colors[6]
 
 ax.plot(df['N'], df['Time'], color=c1, marker='o',
-            label=f"Serial 3D")
+            label=f"Serial, 3D")
 
 ax.plot(df['N'], dfOMP['Time'], color=c3, marker='o',
-            label=f"OMP 3D")
+            label=f"OMP, 3D")
 
 ax.plot(df['N'], dfMPI['Time'], color=c2, marker='o',
-            label=f"MPI 3D")
+            label=f"MPI, 3D")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Time $t$, $[s]$")
-ax.legend()
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Time $t$, $[s]$", fontsize = 16)
+ax.legend(fontsize = 12)
 plt.savefig(save_dir / "TimeParallelNumMH.pdf")

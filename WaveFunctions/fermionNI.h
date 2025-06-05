@@ -10,7 +10,7 @@ class FermionNI : public WaveFunction
 {
     public:
         // Constructor.
-        FermionNI(double alpha, int n_particles);
+        FermionNI(double alpha, int n_particles, double omega);
     
         double Psi1(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx);
         double Psi2(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx);

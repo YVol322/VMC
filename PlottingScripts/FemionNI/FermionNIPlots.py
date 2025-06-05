@@ -136,54 +136,57 @@ c6 = colors[5]
 c7 = colors[6]
 c8 = colors[7]
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 
 ax.plot(nparts, E_Metro - E_analyt, color=c1, marker='o', label=r"Metropolis, $c=0$")
 ax.plot(nparts, E_Num - E_analyt + 1, color=c2, marker='o', label=r"Metropolis numerical, $c=1$")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Energy differance $\Delta E_0 + c$")
-plt.legend()
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Energy difference $\Delta E + c$ [a.u.]", fontsize = 16)
+ax.legend(fontsize = 12)
+plt.tight_layout()
 plt.savefig(save_dir / "E_Metro.pdf")
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 
 ax.plot(nparts, E_MH - E_analyt + 2, color=c3, marker='o', label=r"MH, $c=2$")
 ax.plot(nparts, E_NumMH - E_analyt + 3, color=c4, marker='o', label=r"MH numerical, $c=3$")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Energy differance $\Delta E_0 + c$")
-plt.legend()
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Energy difference $\Delta E + c$ [a.u.]", fontsize = 16)
+ax.legend(fontsize = 12)
+plt.tight_layout()
 plt.savefig(save_dir / "E_MH.pdf")
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 
 ax.plot(nparts, TMetro, color=c1, marker='o', label=r"Metropolis")
 ax.plot(nparts, TMetroNum, color=c2, marker='o', label=r"Metropolis numerical")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Time $t$, $[s]$")
-plt.legend()
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Time $t$, $[s]$", fontsize = 16)
+ax.legend(fontsize = 12)
+plt.tight_layout()
 plt.savefig(save_dir / "T_Metro.pdf")
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 
 ax.plot(nparts, TMH, color=c3, marker='o', label=r"MH")
 ax.plot(nparts, TMHNum, color=c4, marker='o', label=r"MH numerical")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Time $t$, $[s]$")
-plt.legend()
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Time $t$, $[s]$", fontsize = 16)
+ax.legend(fontsize = 12)
 plt.savefig(save_dir / "T_MH.pdf")
 
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 
 ax.plot(nparts, TMetro, color=c1, marker='o', label=r"Serial Metropolis")
 ax.plot(nparts, TMetroOMP, color=c2, linestyle=':', marker='o', label=r"OMP Metropolis")
@@ -191,41 +194,41 @@ ax.plot(nparts, TMetroMPI, color=c3, marker='o', label=r"MPI Metropolis")
 
 ax.set_xlabel(r"Number of particles $N$")
 ax.set_ylabel(r"Time $t$, $[s]$")
-plt.legend()
+ax.legend(fontsize = 12)
 plt.savefig(save_dir / "T_Metro.pdf")
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 
 ax.plot(nparts, TMetroNum, color=c4, marker='o', label=r"Serial Metropolis numerical")
 ax.plot(nparts, TMetroNumOMP, color=c5, linestyle=':', marker='o', label=r"OMP Metropolis numerical")
 ax.plot(nparts, TMetroNumMPI, color=c6, marker='o', label=r"MPI Metropolis numerical")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Time $t$, $[s]$")
-plt.legend()
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Time $t$, $[s]$", fontsize = 16)
+ax.legend(fontsize = 12)
 plt.savefig(save_dir / "T_MetroNum.pdf")
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 
 ax.plot(nparts, TMH, color=c1, marker='o', label=r"Serial MH")
 ax.plot(nparts, TMHOMP, color=c2, linestyle=':', marker='o', label=r"OMP MH")
 ax.plot(nparts, TMHMPI, color=c3, marker='o', label=r"MPI, MH")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Time $t$, $[s]$")
-plt.legend()
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Time $t$, $[s]$", fontsize = 16)
+ax.legend(fontsize = 12)
 plt.savefig(save_dir / "T_MH.pdf")
 
 
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+fig, ax = plt.subplots(figsize=(6.5, 4.6))
 
 ax.plot(nparts, TMHNum, color=c4, marker='o', label=r"Serial MH numerical")
 ax.plot(nparts, TMHNumOMP, color=c5, linestyle=':', marker='o', label=r"OMP MH numerical")
 ax.plot(nparts, TMHNumMPI, color=c6, marker='o', label=r"MPI MH numerical")
 
-ax.set_xlabel(r"Number of particles $N$")
-ax.set_ylabel(r"Time $t$, $[s]$")
-plt.legend()
+ax.set_xlabel(r"Number of particles $N$", fontsize = 16)
+ax.set_ylabel(r"Time $t$, $[s]$", fontsize = 16)
+ax.legend(fontsize = 12)
 plt.savefig(save_dir / "T_MHNum.pdf")

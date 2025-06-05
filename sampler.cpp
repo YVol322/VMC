@@ -50,8 +50,8 @@ void Sampler::sample(bool acceptedStep, System* system)
     m_cumulativeEnergy  += localEnergy;
 
     double r2 = system -> computer2();
-    m_cumulativeO1alpha += r2;
-    m_cumulativeO2alpha += r2 * localEnergy;
+    m_cumulativeO1alpha -= r2;
+    m_cumulativeO2alpha -= r2 * localEnergy;
 
     int N = m_numberOfParticles;
     int pairIndex = 0;

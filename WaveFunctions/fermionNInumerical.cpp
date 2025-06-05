@@ -1,7 +1,7 @@
 #include "fermionNInumerical.h"
 
 
-FermionNInumerical::FermionNInumerical(double alpha, int n_particles)
+FermionNInumerical::FermionNInumerical(double alpha, int n_particles, double omega)
 {
     assert(alpha >= 0);
 
@@ -10,6 +10,9 @@ FermionNInumerical::FermionNInumerical(double alpha, int n_particles)
     m_parameters.push_back(alpha);
 
     m_particles = n_particles;
+
+    m_omega = omega;
+    m_sqrt_om = sqrt(omega);
 }
 
 
@@ -39,7 +42,7 @@ var FermionNInumerical::psi1i(VectorXvar& x, int idx)
     var y_ = x(idx + 1);
     var sum = x_ * x_ + y_ * y_;
 
-    return exp(-alpha * sum);
+    return exp(-alpha * m_omega * sum);
 }
 
 

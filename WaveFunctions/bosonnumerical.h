@@ -17,7 +17,7 @@ class BosonNumerical : public WaveFunction
 {
     public:
         // Constructor.
-        BosonNumerical(double alpha, int n_particles);
+        BosonNumerical(double alpha, int n_particles, double omega);
 
         // BosonNumerical subclass specific functions.
         VectorXvar fill_x(std::vector<std::unique_ptr<class Particle>>& particles);

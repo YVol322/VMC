@@ -9,7 +9,7 @@ class Boson : public WaveFunction
 {
     public:
         // Constructor.
-        Boson(double alpha, int n_particles);
+        Boson(double alpha, int n_particles, double omega);
 
         // Boson subclass specific functions.
         double PsiT(std::vector<std::unique_ptr<class Particle>>& particles);
