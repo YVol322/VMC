@@ -18,9 +18,9 @@
 
 This directory contains a flexible, object-oriented C++ implementation of a Variational Monte Carlo (VMC) solver designed to estimate the ground-state energy of selected many-body systems. The primary systems studied include:
 
-- **Non-interacting bosons**: \(N\) non-interacting bosons in \(d\) dimensions confined in a harmonic oscillator (HO) potential, modeling a Bose-Einstein condensate.
-- **Non-interacting electrons**: \(2\), \(6\), and \(12\) non-interacting electrons in \(2\) dimensions confined in a HO potential, modeling an idealized 2D quantum dot.
-- **Interacting electrons**: \(2\), \(6\), and \(12\) interacting electrons in \(2\) dimensions confined in a HO potential with Coulomb interaction, modeling a more realistic 2D quantum dot.
+- **Non-interacting bosons**: $N$ non-interacting bosons in $d$ dimensions confined in a harmonic oscillator (HO) potential, modeling a Bose-Einstein condensate.
+- **Non-interacting electrons**: $2$, $6$, and $12$ non-interacting electrons in $2$ dimensions confined in a HO potential, modeling an idealized 2D quantum dot.
+- **Interacting electrons**: $2$, $6$, and $12$ interacting electrons in $2$ dimensions confined in a HO potential with Coulomb interaction, modeling a more realistic 2D quantum dot.
 
 ### Hamiltonian Formulations
 
@@ -47,9 +47,9 @@ For the interacting electrons, the system includes two types of correlation fact
 
 ### Wavefunctions and Variational Parameters
 
-- **Non-interacting wavefunctions** are modified by a single variational parameter \(\alpha\).
-- **Interacting Jastrow ansatz** involves \(p = \frac{N(N-1)}{2}\) variational parameters \(\beta_{ij}\), where \(N\) is the number of particles.
-- **Pade-Jastrow ansatz** is modified with one variational parameter \(\beta\).
+- **Non-interacting wavefunctions** are modified by a single variational parameter $\alpha$.
+- **Interacting Jastrow ansatz** involves $p = \frac{N(N-1)}{2}$ variational parameters $\beta_{ij}$, where $N$ is the number of particles.
+- **Pade-Jastrow ansatz** is modified with one variational parameter $\beta$.
 
 These parameters are optimized using Gradient Descent to minimize the variational energy, thus providing an estimate for the ground-state energy.
 
@@ -125,19 +125,19 @@ Before running the VMC solver, you may need to configure certain parameters. The
 
 - **Number of particles**: Adjust the number of particles in the system. 
   - For fermions, only 2, 6, and 12 particles in 2D are supported.
-  - For bosons, \(N\) particles in \(d\) dimensions can be simulated.
+  - For bosons, $N$ particles in $d$ dimensions can be simulated.
 
 - **Number of dimensions**: Set the number of spatial dimensions (e.g., 2D or 3D).
   
 - **Step length**: Set the step length for the Metropolis or Metropolis-Hastings algorithms, which controls the magnitude of each particle displacement.
 
-- **Learning rate (for Gradient Descent programs)**: Specify the learning rate for gradient descent optimization of the variational parameters. A typical value is around \(1 \times 10^{-2}\).
+- **Learning rate (for Gradient Descent programs)**: Specify the learning rate for gradient descent optimization of the variational parameters. A typical value is around $1 \times 10^{-2}$.
 
 - **Stopping criterion (for Gradient Descent programs)**: Define the stopping criterion based on energy convergence or the number of iterations. The process will stop once the change in energy is below a given threshold.
 
-- **Oscillator frequency**: Set the frequency \(\omega\) of the harmonic oscillator potential that confines the particles.
+- **Oscillator frequency**: Set the frequency $\omega$ of the harmonic oscillator potential that confines the particles.
 
-- **Initial Wavefunction Variational parameters**: Modify the initial variational parameters (e.g., \(\alpha\), \(\beta_{ij}\)) for the wavefunction. These parameters will be optimized during the simulation to minimize the variational energy.
+- **Initial Wavefunction Variational parameters**: Modify the initial variational parameters (e.g., $\alpha$, $\beta_{ij}$) for the wavefunction. These parameters will be optimized during the simulation to minimize the variational energy.
 
 ## Examples
 
@@ -145,7 +145,6 @@ Before running the VMC solver, you may need to configure certain parameters. The
 
 1. Copy the `main_NI_serial_GD.cpp` file from the `/VMC/MainFunctions` directory to the `/VMC` directory.
 2. Compile and execute the program by running:
-
    ```bash
    ./execute
 
@@ -155,7 +154,6 @@ Before running the VMC solver, you may need to configure certain parameters. The
 1. Delete the previously copied `main_NI_serial_GD.cpp` file from the `/VMC` directory.
 2. Copy the `9_boson_GD_MPI.cpp` file from the `/VMC/ResultGeneration/Boson` directory to the `/VMC` directory.
 3. Compile and execute the MPI version of the program by running:
-
    ```bash
    ./execute_MPI
 
