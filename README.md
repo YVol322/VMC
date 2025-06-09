@@ -25,10 +25,10 @@ This directory contains a flexible, object-oriented C++ implementation of a Vari
 ### Hamiltonian Formulations
 
 - **Non-interacting particles**:  
-  $$\hat{H} = \sum_{i=1}^N \left[ -\frac{1}{2}\nabla_i^2 + \frac{1}{2} m\omega^2 r_i^2 \right]$$
+  $$\hat{H} = \sum_{i=1}^N \left[-\frac{1}{2}\nabla_i^2 + \frac{1}{2} m\omega^2 r_i^2\right]$$
 
 - **Interacting electrons**:  
-  $$\hat{H} = \sum_{i=1}^N \left[ -\frac{1}{2}\nabla_i^2 + \frac{1}{2} m\omega^2 r_i^2 \right] + \sum_{i=1}^N \sum_{j>i}^N \frac{1}{r_{ij}}$$
+  $$\hat{H} = \sum_{i=1}^N \left[-\frac{1}{2}\nabla_i^2 + \frac{1}{2} m\omega^2 r_i^2\right] + \sum_{i=1}^N \sum_{j>i}^N \frac{1}{r_{ij}}$$
 
 For the interacting electrons, the system includes two types of correlation factors:
 
