@@ -1,6 +1,12 @@
-#include "wavefunction.h"
+#include "wavefunction.h"    // Include "wavefunction" header file with declarations.
 
 
+// Computes the sum of squared coordinates for the particle specified by part_idx.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          int part_idx - index of the particle for which to compute r^2.
+//
+// Output:  double - the sum of squared coordinates for the specified particle.
 double WaveFunction::r_squared(std::vector<std::unique_ptr<class Particle>>& particles, int part_idx)
 {
     Particle& particle_i = *(particles[part_idx]);
@@ -18,6 +24,13 @@ double WaveFunction::r_squared(std::vector<std::unique_ptr<class Particle>>& par
 }
 
 
+// Computes the relative distance between particles i and j.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          int i - index of the first particle;
+//          int j - index of the second particle.
+//
+// Output:  double - the relative distance between particles i and j.
 double WaveFunction::r_ij(std::vector<std::unique_ptr<class Particle>>& particles, int i, int j)
 {
     Particle& pi = *(particles[i]);
@@ -35,6 +48,12 @@ double WaveFunction::r_ij(std::vector<std::unique_ptr<class Particle>>& particle
 }
 
 
+// Transforms a 2D index (i, j) into a 1D index k.
+//
+// Input:   int i - index of the first particle;
+//          int j - index of the second particle.
+//
+// Output:  int - the corresponding 1D index.
 int WaveFunction::BetaIndex(int i, int j)
 {
     int n_particles = m_particles;
@@ -46,6 +65,12 @@ int WaveFunction::BetaIndex(int i, int j)
 }
 
 
+// Computes the constant a for particles i and j.
+//
+// Input:   int i - index of the first particle;
+//          int j - index of the second particle.
+//
+// Output:  double - the constant a for particles i and j.
 double WaveFunction::a_ij(int i, int j)
 {
     int n_particles = m_particles;
@@ -65,10 +90,19 @@ double WaveFunction::a_ij(int i, int j)
 }
 
 
+// Computes the Green's function ratio between two particle configurations.
+//
+// Input:   std::vector<double>& Rnew - new configuration of particle positions;
+//          std::vector<double>& Rold - old configuration of particle positions;
+//          double dt - time step used for the update;
+//          std::vector<double>& Fold - forces for the old configuration;
+//          std::vector<double>& Fnew - forces for the new configuration.
+//
+// Output:  double - the computed Green's function ratio.
 double WaveFunction::GreensFunctionRatio(std::vector<double>& Rnew, std::vector<double>& Rold, 
-double dt, std::vector<double>& Fold, std::vector<double>& Fnew)
+                                         double dt, std::vector<double>& Fold, std::vector<double>& Fnew)
 {
-    const double D = 0.5;
+    const double D = 0.5;   // Constant D in a.u.
     double sum = 0.0;
 
     int ndim = Rold.size();

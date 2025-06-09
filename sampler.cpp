@@ -1,11 +1,20 @@
-#include <iostream>
+#include <iostream>         // Include the C++ input-output stream library.
 
-#include "sampler.h"
+#include "sampler.h"        // Include "sampler" header file with declarations.
 
 using std::cout;
 using std::endl;
 
 
+// Constructor for the Sampler class. Initializes all necessary parameters for the sampling process 
+// in a Variational Monte Carlo (VMC) simulation. This constructor sets up the number of particles, 
+// dimensions, step length, and the number of Metropolis steps, along with initializing variables 
+// to store the cumulative values of various observables for optimization purposes.
+//
+// Input:   unsigned int numberOfParticles - the number of particles in the system;
+//          unsigned int numberOfDimensions - the number of dimensions in the system;
+//          double stepLength - the step length used in the Metropolis algorithm;
+//          unsigned int numberOfMetropolisSteps - the total number of Metropolis steps in the simulation.
 Sampler::Sampler(
         unsigned int numberOfParticles,
         unsigned int numberOfDimensions,
@@ -43,15 +52,18 @@ Sampler::Sampler(
     m_cumulativeO2Pade = 0;
 }
 
-
+// Samples all observables, including the local energy, O1, and O2 for alpha, beta, and beta_ij optimization.
+//
+// Input:   bool acceptedStep - indicates if the step was accepted in the Metropolis algorithm;
+//          class System* system - pointer to the system object that contains the simulation state.
 void Sampler::sample(bool acceptedStep, System* system)
 {
     auto localEnergy = system->computeLocalEnergy();
-    m_cumulativeEnergy  += localEnergy;
+    m_cumulativeEnergy  += localEnergy;     // Sample local energy.
 
     double r2 = system -> computer2();
-    m_cumulativeO1alpha -= r2;
-    m_cumulativeO2alpha -= r2 * localEnergy;
+    m_cumulativeO1alpha -= r2;                  // Sample O1alpha for alpha optimization.
+    m_cumulativeO2alpha -= r2 * localEnergy;    // Sample O2alpha for alpha optimization.
 
     int N = m_numberOfParticles;
     int pairIndex = 0;
@@ -62,8 +74,8 @@ void Sampler::sample(bool acceptedStep, System* system)
         for (int j = i + 1; j < N; j++)
         {
             double rij = system -> computerij(i, j);
-            m_cumulativeO1Jastrow[pairIndex] += rij;
-            m_cumulativeO2Jastrow[pairIndex] += rij * localEnergy;
+            m_cumulativeO1Jastrow[pairIndex] += rij;                // Sample O1Jastrow for beta_ij optimization.
+            m_cumulativeO2Jastrow[pairIndex] += rij * localEnergy;  // Sample O2Jastrow for beta_ij optimization.
 
             double aij;
             if ((i < N/2 && j >= N/2) || (i >= N/2 && j < N/2))
@@ -83,14 +95,17 @@ void Sampler::sample(bool acceptedStep, System* system)
             pairIndex++;
         }
     }
-    m_cumulativeO1Pade += O;
-    m_cumulativeO2Pade += O * localEnergy;
+    m_cumulativeO1Pade += O;                    // Sample O1Pade for beta optimization.
+    m_cumulativeO2Pade += O * localEnergy;      // sample O2Pade for beta optimization.
 
     m_stepNumber++;
     m_numberOfAcceptedSteps += acceptedStep;
 }
 
 
+// Prints the output to the terminal, typically the results of the VMC simulation.
+//
+// Input:   class System& system - reference to the system object to extract the necessary information.
 void Sampler::printOutputToTerminal(System& system) {
     auto pa = system.getWaveFunctionParameters();
     auto p = pa.size();
@@ -114,13 +129,13 @@ void Sampler::printOutputToTerminal(System& system) {
     cout << endl;
 
     cout << " Analytical Energy for bosons : " << 0.5 * m_numberOfDimensions * m_numberOfParticles * (pa.back() + 1/(4* pa.back())) << endl;
-    cout << " Analytical Energy for fermions : " << 10 << endl;
     cout << endl;
 
     cout << " Algo runtime: " << m_time << " seconds" << endl;
 }
 
 
+// Computes the averages of all sampled variables after the sampling is complete.
 void Sampler::computeAverages()
 {
     m_energy = m_cumulativeEnergy / m_numberOfMetropolisSteps;
@@ -137,11 +152,19 @@ void Sampler::computeAverages()
     m_O2Pade = m_cumulativeO2Pade / m_numberOfMetropolisSteps;
 }
 
+
+// Sets the VMC energy to be used in output (necessary for parallel algorithms).
+//
+// Input:   double en - the value of the energy to set.
 void Sampler::setEnergy(double en)
 {
     m_energy = en;
 }
 
+
+// Sets the VMC time to be used in output (necessary for parallel algorithms).
+//
+// Input:   double t - the runtime of the VMC simulation.
 void Sampler::setTime(double t)
 {
     m_time = t;

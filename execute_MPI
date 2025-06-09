@@ -15,7 +15,8 @@ make -j2
 # Move the executable to the top-directory
 mv vmc ..
 
+# Move into the VMC directory
 cd ..
 
-./vmc
-#mpirun --oversubscribe -np 4 ./vmc
+# Execute the program using 4 cores
+mpirun --oversubscribe -np 4 ./vmc

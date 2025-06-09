@@ -1,20 +1,35 @@
-#include "fermionNI.h"
+#include "fermionNI.h"      // Include "bosonnumerical" header file with declarations.
 
+
+// Constructor of the FermionNI class. Initializes the parameters for the fermion system.
+// It sets the number of parameters, stores the variational parameter alpha, 
+// and initializes the number of particles and angular frequency (omega).
+//
+// Input:   double alpha - variational parameter alpha;
+//          int n_particles - number of particles in the system;
+//          double omega - angular frequency of the system.
 FermionNI::FermionNI(double alpha, int n_particles, double omega)
 {
-    assert(alpha >= 0);
+    assert(alpha >= 0);  // Ensure the variational parameter alpha is non-negative.
 
-    m_numberOfParameters = 1;
+    m_numberOfParameters = 1;  // Only one parameter, alpha.
 
-    m_parameters.push_back(alpha);
+    m_parameters.reserve(m_numberOfParameters);  // Reserve space for the parameter.
+    m_parameters.push_back(alpha);  // Store alpha as the variational parameter.
 
-    m_particles = n_particles;
+    m_particles = n_particles;  // Set the number of particles.
 
-    m_omega = omega;
-    m_sqrt_om = sqrt(omega);
+    m_omega = omega;  // Set the angular frequency.
+    m_sqrt_om = sqrt(omega);  // Calculate the square root of omega.
 }
 
 
+// Computes the value of Psi1 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute Psi1.
+//
+// Output:  double - the value of Psi1 for the given particle.
 double FermionNI::Psi1(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -24,6 +39,12 @@ double FermionNI::Psi1(std::vector<std::unique_ptr<class Particle>>& particles, 
 }
 
 
+// Computes the value of Psi2 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute Psi2.
+//
+// Output:  double - the value of Psi2 for the given particle.
 double FermionNI::Psi2(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double x = particles[part_idx] -> getPosition()[0];
@@ -31,6 +52,13 @@ double FermionNI::Psi2(std::vector<std::unique_ptr<class Particle>>& particles, 
     return x * Psi1(particles, part_idx);
 }
 
+
+// Computes the value of Psi3 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute Psi3.
+//
+// Output:  double - the value of Psi3 for the given particle.
 double FermionNI::Psi3(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double y = particles[part_idx] -> getPosition()[1];
@@ -39,16 +67,27 @@ double FermionNI::Psi3(std::vector<std::unique_ptr<class Particle>>& particles, 
 }
 
 
+// Computes the value of Psi4 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute Psi4.
+//
+// Output:  double - the value of Psi4 for the given particle.
 double FermionNI::Psi4(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double x = particles[part_idx] -> getPosition()[0];
     double y = particles[part_idx] -> getPosition()[1];
 
-
     return x * y * Psi1(particles, part_idx);
 }
 
 
+// Computes the value of Psi5 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute Psi5.
+//
+// Output:  double - the value of Psi5 for the given particle.
 double FermionNI::Psi5(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double x = particles[part_idx] -> getPosition()[0];
@@ -57,6 +96,12 @@ double FermionNI::Psi5(std::vector<std::unique_ptr<class Particle>>& particles, 
 }
 
 
+// Computes the value of Psi6 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute Psi6.
+//
+// Output:  double - the value of Psi6 for the given particle.
 double FermionNI::Psi6(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double y = particles[part_idx] -> getPosition()[1];
@@ -64,6 +109,13 @@ double FermionNI::Psi6(std::vector<std::unique_ptr<class Particle>>& particles, 
     return (y * y - 1) * Psi1(particles, part_idx);
 }
 
+
+// Computes the gradient of Psi1 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the gradient of Psi1.
+//
+// Output:  std::vector<double> - the gradient of Psi1 for the given particle.
 std::vector<double> FermionNI::GradiPsi1(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -77,6 +129,13 @@ std::vector<double> FermionNI::GradiPsi1(std::vector<std::unique_ptr<class Parti
     return grad_psi1;
 }
 
+
+// Computes the gradient of Psi2 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the gradient of Psi2.
+//
+// Output:  std::vector<double> - the gradient of Psi2 for the given particle.
 std::vector<double> FermionNI::GradiPsi2(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -90,6 +149,13 @@ std::vector<double> FermionNI::GradiPsi2(std::vector<std::unique_ptr<class Parti
     return grad_psi2;
 }
 
+
+// Computes the gradient of Psi3 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the gradient of Psi3.
+//
+// Output:  std::vector<double> - the gradient of Psi3 for the given particle.
 std::vector<double> FermionNI::GradiPsi3(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -104,6 +170,12 @@ std::vector<double> FermionNI::GradiPsi3(std::vector<std::unique_ptr<class Parti
 }
 
 
+// Computes the gradient of Psi4 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the gradient of Psi4.
+//
+// Output:  std::vector<double> - the gradient of Psi4 for the given particle.
 std::vector<double> FermionNI::GradiPsi4(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -118,6 +190,12 @@ std::vector<double> FermionNI::GradiPsi4(std::vector<std::unique_ptr<class Parti
 }
 
 
+// Computes the gradient of Psi5 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the gradient of Psi5.
+//
+// Output:  std::vector<double> - the gradient of Psi5 for the given particle.
 std::vector<double> FermionNI::GradiPsi5(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -132,6 +210,12 @@ std::vector<double> FermionNI::GradiPsi5(std::vector<std::unique_ptr<class Parti
 }
 
 
+// Computes the gradient of Psi6 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the gradient of Psi6.
+//
+// Output:  std::vector<double> - the gradient of Psi6 for the given particle.
 std::vector<double> FermionNI::GradiPsi6(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -146,6 +230,12 @@ std::vector<double> FermionNI::GradiPsi6(std::vector<std::unique_ptr<class Parti
 }
 
 
+// Computes the Laplacian of Psi1 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the Laplacian of Psi1.
+//
+// Output:  double - the Laplacian of Psi1 for the given particle.
 double FermionNI::LapliPsi1(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -156,6 +246,13 @@ double FermionNI::LapliPsi1(std::vector<std::unique_ptr<class Particle>>& partic
     return (-4 * alpha * m_omega+ 4 * alpha * alpha * m_omega * m_omega * (x * x + y * y) ) * Psi1(particles, part_idx);
 }
 
+
+// Computes the Laplacian of Psi2 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the Laplacian of Psi2.
+//
+// Output:  double - the Laplacian of Psi2 for the given particle.
 double FermionNI::LapliPsi2(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -166,6 +263,13 @@ double FermionNI::LapliPsi2(std::vector<std::unique_ptr<class Particle>>& partic
     return (-8 * alpha * m_omega * x + 4 * alpha * alpha * m_omega * m_omega * x * (x * x + y * y) ) * Psi1(particles, part_idx);
 }
 
+
+// Computes the Laplacian of Psi3 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the Laplacian of Psi3.
+//
+// Output:  double - the Laplacian of Psi3 for the given particle.
 double FermionNI::LapliPsi3(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -177,6 +281,12 @@ double FermionNI::LapliPsi3(std::vector<std::unique_ptr<class Particle>>& partic
 }
 
 
+// Computes the Laplacian of Psi4 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the Laplacian of Psi4.
+//
+// Output:  double - the Laplacian of Psi4 for the given particle.
 double FermionNI::LapliPsi4(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -184,10 +294,17 @@ double FermionNI::LapliPsi4(std::vector<std::unique_ptr<class Particle>>& partic
     double x = particles[part_idx] -> getPosition()[0];
     double y = particles[part_idx] -> getPosition()[1];
 
-    return x * y * Psi1(particles, part_idx) * (4 * alpha * alpha * m_omega * m_omega *(x * x + y * y) - 12 * alpha * m_omega);
+    return x * y * Psi1(particles, part_idx) * (4 * alpha * alpha * m_omega * m_omega *(x * x + y * y)
+                                                - 12 * alpha * m_omega);
 }
 
 
+// Computes the Laplacian of Psi5 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the Laplacian of Psi5.
+//
+// Output:  double - the Laplacian of Psi5 for the given particle.
 double FermionNI::LapliPsi5(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -201,12 +318,19 @@ double FermionNI::LapliPsi5(std::vector<std::unique_ptr<class Particle>>& partic
     double common = x2 - 1;
 
     double laplacian_psi5 = 2 * psi1 *
-    (-4 * alpha * m_omega * x2 + alpha * m_omega * common * (2 * alpha * m_omega * x2 - 1) + alpha * m_omega * common * (2 * alpha * m_omega * y2 - 1) + 1);
+    (-4 * alpha * m_omega * x2 + alpha * m_omega * common * (2 * alpha * m_omega * x2 - 1)
+    + alpha * m_omega * common * (2 * alpha * m_omega * y2 - 1) + 1);
 
     return laplacian_psi5;
 }
 
 
+// Computes the Laplacian of Psi6 for the specified particle.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          double part_idx - index of the particle for which to compute the Laplacian of Psi6.
+//
+// Output:  double - the Laplacian of Psi6 for the given particle.
 double FermionNI::LapliPsi6(std::vector<std::unique_ptr<class Particle>>& particles, double part_idx)
 {
     double alpha = m_parameters.back();
@@ -220,12 +344,22 @@ double FermionNI::LapliPsi6(std::vector<std::unique_ptr<class Particle>>& partic
     double common = y2 - 1;
 
     double laplacian_psi6 = 2 * psi1 *
-    (-4 * alpha * m_omega * y2 + alpha * m_omega * common * (2 * alpha * m_omega * x2 - 1) + alpha * m_omega * common * (2 * alpha * m_omega * y2 - 1) + 1);
+    (-4 * alpha * m_omega * y2 + alpha * m_omega * common * (2 * alpha * m_omega * x2 - 1)
+    + alpha * m_omega * common * (2 * alpha * m_omega * y2 - 1) + 1);
 
     return laplacian_psi6;
 }
 
 
+// Computes the spin-up Slater determinant, its gradient component, or Laplacian depending on the arguments.
+        //
+        // Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+        //          int particles_set - number of sets of particles: 0 - spin-up, 1 - spin-down;
+        //          int row_changed - row index of the particle that was changed;
+        //          int der_order - order of the derivatives to compute;
+        //          int grad_comp - the gradient component to compute (if applicable).
+        //
+        // Output:  double - the computed value based on the requested derivative order (Slater determinant, gradient, or Laplacian).
 double FermionNI::SD
 (std::vector<std::unique_ptr<class Particle>>& particles, int particles_set, int row_changed, int der_order, int grad_comp)
 {
@@ -335,16 +469,24 @@ double FermionNI::SD
 }
 
 
+// Computes the sum of Laplacians of Psi_T divided by Psi_T for all particles in the system using the Fermion ansatz.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system.
+//
+// Output:  double - the computed sum of Laplacians of Psi_T divided by Psi_T for all particles in the system.
 double FermionNI::LaplPsiTOverPsiT(std::vector<std::unique_ptr<class Particle>>& particles)
 {
 
-    double det_up = SD(particles, 0, 0, 0, 0);
-    double det_down = SD(particles, 1, 0, 0, 0);
+    double det_up = SD(particles, 0, 0, 0, 0);      // Spin-up Slater Determinant.
+    double det_down = SD(particles, 1, 0, 0, 0);    // Spin-down Slater Determinant.
 
     double sum = 0.0;
     for(int i = 0; i < m_particles / 2; i++)
     {
+        // SD(particles, 0, i, 2, 0) is the Laplacian of the spin-up Slater determinant with respect to the i-th particle.
         sum += SD(particles, 0, i, 2, 0) / det_up;
+
+        // SD(particles, 1, i, 2, 0) is the Laplacian of the spin-down Slater determinant with respect to the i-th particle.
         sum += SD(particles, 1, i, 2, 0) / det_down;
     }
 
@@ -352,30 +494,47 @@ double FermionNI::LaplPsiTOverPsiT(std::vector<std::unique_ptr<class Particle>>&
 }
 
 
+// Evaluates the wave function for the given particle configuration using the fermionic ansatz.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system.
+//
+// Output:  double - the value of the wave function for the given particle configuration using the fermionic ansatz.
 double FermionNI::evaluate(std::vector<std::unique_ptr<class Particle>>& particles)
 {
-
+    // Spind-up Slater determinant times spin-down Slater determinant.
     return SD(particles, 0, 0, 0, 0) * SD(particles, 1, 0, 0, 0);
 }
 
 
+// Computes the sum of second derivatives of the wave function
+// for the fermionic ansatz, which is required for calculating the local energy.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system.
+//
+// Output:  double - the computed sum of second derivatives of the wave function for the given particle configuration.
 double FermionNI::computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles)
 {
-
     return LaplPsiTOverPsiT(particles);
 }
 
 
+// Computes the quantum force for a specific particle in the system using the fermionic ansatz.
+//
+// Input:   std::vector<std::unique_ptr<class Particle>>& particles - list of particles in the system;
+//          int n - index of the particle for which to compute the quantum force.
+//
+// Output:  std::vector<double> - the quantum force for the specified particle.
 std::vector<double> FermionNI::quantumForce(std::vector<std::unique_ptr<class Particle>>& particles, int n)
 {
-    double det_up   = SD(particles, 0, 0, 0, 0);
-    double det_down = SD(particles, 1, 0, 0, 0);
+    double det_up = SD(particles, 0, 0, 0, 0);      // Spin-up Slater Determinant.
+    double det_down = SD(particles, 1, 0, 0, 0);    // Spin-down Slater Determinant.
 
-    int half = m_particles / 2;
-    std::vector<double> F(2);
+    int half = m_particles / 2;  // Half the number of particles to differentiate spin-up and spin-down particles.
+    std::vector<double> F(2);    // Initialize a vector to store the quantum force components.
 
     if (n < half)
     {
+        // Compute the gradient of the spin-up Slater determinant with respect to the x-component and y-component.
         double grad_x = SD(particles, 0, n, 1, 0);
         double grad_y = SD(particles, 0, n, 1, 1);
 
@@ -384,7 +543,9 @@ std::vector<double> FermionNI::quantumForce(std::vector<std::unique_ptr<class Pa
     }
     else
     {
-        int row = n - half;
+        int row = n - half;  // Adjust index for spin-down particles.
+
+        // Compute the gradient of the spin-down Slater determinant with respect to the x-component and y-component.
         double grad_x = SD(particles, 1, row, 1, 0);
         double grad_y = SD(particles, 1, row, 1, 1);
 
