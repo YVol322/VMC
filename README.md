@@ -25,17 +25,17 @@ This directory contains a flexible, object-oriented C++ implementation of a Vari
 ### Hamiltonian Formulations
 
 - **Non-interacting particles**:  
-  $$\hat{H} = \sum_{i=1}^N \Bigg[ -\frac{1}{2}\nabla_i^2 + \frac{1}{2} m\omega^2 r_i^2 \Bigg]$$
+  $$\hat{H} = \sum_{i=1}^N \Biggg[ -\frac{1}{2}\nabla_i^2 + \frac{1}{2} m\omega^2 r_i^2 \Biggg]$$
 
 - **Interacting electrons**:  
-  $$\hat{H} = \sum_{i=1}^N \Bigg[ -\frac{1}{2}\nabla_i^2 + \frac{1}{2} m\omega^2 r_i^2 \Bigg] + \sum_{i=1}^N \sum_{j>i}^N \frac{1}{r_{ij}}$$
+  $$\hat{H} = \sum_{i=1}^N \Biggg[ -\frac{1}{2}\nabla_i^2 + \frac{1}{2} m\omega^2 r_i^2 \Biggg] + \sum_{i=1}^N \sum_{j>i}^N \frac{1}{r_{ij}}$$
 
 For the interacting electrons, the system includes two types of correlation factors:
 - **Jastrow factor**:  
-  $$J = \exp \Bigg(\sum_{i=1}^N \sum_{j>i}^N \beta_{ij} r_{ij}\Bigg)$$
+  $$J = \exp \Biggg(\sum_{i=1}^N \sum_{j>i}^N \beta_{ij} r_{ij}\Biggg)$$
   
 - **Pade-Jastrow factor**:  
-  $$P = \exp \Bigg( \sum_{i=1}^N \sum_{j>i}^N \frac{a r_{ij}}{1 + \beta r_{ij}} \Bigg)$$
+  $$P = \exp \Biggg( \sum_{i=1}^N \sum_{j>i}^N \frac{a r_{ij}}{1 + \beta r_{ij}} \Biggg)$$
 
 ### Wavefunctions and Variational Parameters
 
